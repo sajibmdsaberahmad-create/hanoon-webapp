@@ -2,17 +2,16 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 /**
- * Middleware: proxy requests to /api/bridge/* to the HANOON bot's
- * TelemetryAPI. In production (Vercel), the bot runs on a VPS and the
- * proxy route injects the correct endpoint.
+ * Middleware: pass /api/bridge/* through to the API route handler.
+ *
+ * IMPORTANT: we must NOT rewrite /api/bridge/* to the bot URL here.
+ * The route handler (app/api/bridge/[...path]/route.ts) does the
+ * actual proxying via fetch(), which lets it inject BOTH the ngrok
+ * free-tier skip header AND the X-HANOON-Token auth header. A raw
+ * rewrite would hit ngrok without those headers and Vercel would
+ * show the ngrok interstitial page instead of live telemetry.
  */
 export async function middleware(request: NextRequest) {
-  const url = request.nextUrl;
-  if (url.pathname.startsWith('/api/bridge/')) {
-    const target = process.env.HANOON_BOT_URL || 'http://localhost:8080';
-    const path = url.pathname.replace('/api/bridge/', '');
-    return NextResponse.rewrite(new URL(`${target}/${path}`, target));
-  }
   return NextResponse.next();
 }
 

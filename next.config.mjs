@@ -1,17 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // The webapp proxies to the HANOON 3.0 bot's TelemetryAPI (port 8080)
-  // via the /api/bridge route. This avoids CORS issues in production.
-  async rewrites() {
-    return [
-      {
-        source: '/api/bridge/:path*',
-        destination: `${process.env.HANOON_BOT_URL || 'http://localhost:8080'}/:path*`,
-      },
-    ];
-  },
-  // Vercel deployment config
+  // NOTE: /api/bridge/* is proxied by the API route handler
+  // (app/api/bridge/[...path]/route.ts), NOT by a framework rewrite.
+  // A rewrite here would hit the bot/ngrok without the X-HANOON-Token
+  // auth header or the ngrok-skip-browser-warning header, breaking the
+  // live dashboard. Keep this list empty for /api/bridge.
   images: {
     remotePatterns: [
       {
