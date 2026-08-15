@@ -98,8 +98,10 @@ export function OverviewPanel({ data }: OverviewPanelProps) {
 
 function Panel({ title, color, children }: { title: string; color: string; children: React.ReactNode }) {
   return (
-    <div className="bg-hanoon-panel border border-hanoon-border rounded p-3 mb-4">
-      <div className={`text-xs font-mono mb-2 text-${color}`}>▶ {title}</div>
+    <div className="glass rounded-2xl p-4 mb-4">
+      <div className="text-xs font-mono mb-3 tracking-wider text-hanoon-text-dim">
+        <span className="text-hanoon-accent">▶</span> {title}
+      </div>
       {children}
     </div>
   );
@@ -107,7 +109,7 @@ function Panel({ title, color, children }: { title: string; color: string; child
 
 function PanelSkeleton({ label }: { label: string }) {
   return (
-    <div className="bg-hanoon-panel border border-hanoon-border rounded p-3 mb-4">
+    <div className="glass rounded-2xl p-4">
       <div className="text-xs font-mono text-hanoon-text-dim mb-2">▶ {label}</div>
       <div className="animate-pulse">
         <div className="h-3 bg-hanoon-bg rounded w-3/4 mb-1"></div>
@@ -119,9 +121,9 @@ function PanelSkeleton({ label }: { label: string }) {
 
 function MetricCard({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
-    <div className="bg-hanoon-bg rounded p-2 border border-hanoon-border text-center">
-      <div className="text-xs text-hanoon-text-dim">{label}</div>
-      <div className={`text-sm font-medium ${color || 'text-hanoon-text'}`}>{value}</div>
+    <div className="glass-inset rounded-xl p-2 text-center">
+      <div className="text-[10px] text-hanoon-text-dim uppercase tracking-wider">{label}</div>
+      <div className={`text-sm font-medium mt-0.5 ${color || 'text-hanoon-text'}`}>{value}</div>
     </div>
   );
 }

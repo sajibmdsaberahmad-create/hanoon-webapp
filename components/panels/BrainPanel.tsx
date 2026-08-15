@@ -60,8 +60,8 @@ export function BrainPanel({ data }: BrainPanelProps) {
 
   return (
     <>
-      <div className="bg-hanoon-panel border border-hanoon-border rounded p-3 mb-4">
-        <div className="text-xs font-mono text-hanoon-juli mb-2">
+      <div className="glass rounded-2xl p-4 mb-4">
+        <div className="text-xs font-mono text-hanoon-juli glow-juli mb-2">
           ▶ BRAIN — Decision Engine
         </div>
 
@@ -209,7 +209,7 @@ export function BrainPanel({ data }: BrainPanelProps) {
 
 function PanelPlaceholder({ label }: { label: string }) {
   return (
-    <div className="bg-hanoon-panel border border-hanoon-border rounded p-3 mb-4">
+    <div className="glass rounded-2xl p-4 mb-4">
       <div className="text-xs font-mono text-hanoon-text-dim mb-2">
         ▶ {label}
       </div>
@@ -228,10 +228,10 @@ function Stat({
   color?: string;
 }) {
   return (
-    <div className="bg-hanoon-bg rounded p-1.5 border border-hanoon-border text-center">
-      <div className="text-xs text-hanoon-text-dim">{label}</div>
+    <div className="glass-inset rounded-xl p-2 text-center">
+      <div className="text-[10px] text-hanoon-text-dim uppercase tracking-wider">{label}</div>
       <div
-        className={`text-sm font-medium ${color || 'text-hanoon-text'}`}
+        className={`text-sm font-medium mt-0.5 ${color || 'text-hanoon-text'}`}
       >
         {value}
       </div>

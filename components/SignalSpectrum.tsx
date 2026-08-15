@@ -34,7 +34,7 @@ export function SignalSpectrum({ data }: SignalSpectrumProps) {
   const signalStatus = data?.signal_engine_status ?? '—';
 
   return (
-    <div className="bg-hanoon-panel border border-hanoon-border rounded p-3 mb-4">
+    <div className="glass rounded-2xl p-4 mb-4">
       <div className="text-xs font-mono text-hanoon-text-dim mb-2">▶ SIGNAL SPECTRUM</div>
 
       {/* Signal engine status */}
@@ -60,7 +60,7 @@ export function SignalSpectrum({ data }: SignalSpectrumProps) {
             return (
               <div key={key} className="flex items-center gap-2 text-xs">
                 <span className={`w-24 text-hanoon-text-dim truncate`}>{key}</span>
-                <div className="flex-1 h-3 bg-hanoon-bg rounded overflow-hidden">
+                <div className="flex-1 h-3 glass-inset rounded overflow-hidden">
                   <div
                     className={`h-full ${barColor} transition-all duration-300 ${isScanning ? 'animate-pulse-slow' : ''}`}
                     style={{ width: `${Math.min(intensity * 100, 100)}%`, opacity: val > 0 ? 0.8 + intensity : 0.4 }}
@@ -77,7 +77,7 @@ export function SignalSpectrum({ data }: SignalSpectrumProps) {
 
       {/* Decision ticker */}
       {data?.brain?.verdict && (
-        <div className="mt-3 text-xs font-mono bg-hanoon-bg rounded p-1.5 border border-hanoon-border">
+        <div className="mt-3 text-xs font-mono glass-inset rounded-lg p-2">
           <span className="text-hanoon-text-dim">VERDICT:</span>
           <span className={
             data.brain.verdict === 'BUY' ? 'text-hanoon-success' :

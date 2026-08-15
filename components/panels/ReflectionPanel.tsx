@@ -35,8 +35,8 @@ export function ReflectionPanel({ data }: ReflectionPanelProps) {
   };
 
   return (
-    <div className="bg-hanoon-panel border border-hanoon-border rounded p-3 mb-4">
-      <div className="text-xs font-mono text-hanoon-halim mb-2">▶ REFLECTION — Learning Loop</div>
+    <div className="glass rounded-2xl p-4">
+      <div className="text-xs font-mono text-hanoon-halim glow-halim mb-2">▶ REFLECTION — Learning Loop</div>
 
       {/* Supervisor */}
       {supervisor && (
@@ -78,15 +78,15 @@ export function ReflectionPanel({ data }: ReflectionPanelProps) {
         <div className="border-t border-hanoon-border/30 pt-2">
           <div className="text-xs font-mono text-hanoon-text-dim mb-1">▶ REVIEW REPORT</div>
           <div className="grid grid-cols-3 gap-2 text-xs mb-2">
-            <div className="bg-hanoon-bg rounded p-1.5 border border-hanoon-border text-center">
+            <div className="glass-inset rounded-xl p-2 text-center">
               <div className="text-xs text-hanoon-text-dim">Total Trades</div>
               <div className="font-medium text-hanoon-text">{review.summary.total_trades}</div>
             </div>
-            <div className="bg-hanoon-bg rounded p-1.5 border border-hanoon-border text-center">
+            <div className="glass-inset rounded-xl p-2 text-center">
               <div className="text-xs text-hanoon-text-dim">Win Rate</div>
               <div className="font-medium text-hanoon-text">{formatPercent(review.summary.win_rate)}</div>
             </div>
-            <div className="bg-hanoon-bg rounded p-1.5 border border-hanoon-border text-center">
+            <div className="glass-inset rounded-xl p-2 text-center">
               <div className="text-xs text-hanoon-text-dim">Profit Factor</div>
               <div className="font-medium text-hanoon-text">{review.summary.profit_factor.toFixed(2)}</div>
             </div>
@@ -139,7 +139,7 @@ export function ReflectionPanel({ data }: ReflectionPanelProps) {
 
 function PanelPlaceholder({ label }: { label: string }) {
   return (
-    <div className="bg-hanoon-panel border border-hanoon-border rounded p-3 mb-4">
+    <div className="glass rounded-2xl p-4">
       <div className="text-xs font-mono text-hanoon-text-dim mb-2">▶ {label}</div>
       <div className="text-xs text-hanoon-text-dim">Loading reflection state…</div>
     </div>

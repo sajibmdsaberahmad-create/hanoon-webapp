@@ -26,7 +26,7 @@ export function LogsPanel({ data }: LogsPanelProps) {
   const heartbeats = data?.watchdog?.heartbeats ?? {};
 
   return (
-    <div className="bg-hanoon-panel border border-hanoon-border rounded p-3 mb-4">
+    <div className="glass rounded-2xl p-4">
       <div className="text-xs font-mono text-hanoon-text-dim mb-2">▶ LOGS — Bot Activity</div>
 
       {/* Thread status */}

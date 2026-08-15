@@ -19,12 +19,12 @@ interface TradesPanelProps {
 
 export function TradesPanel({ data }: TradesPanelProps) {
   if (!data) {
-    return (
-      <div className="bg-hanoon-panel border border-hanoon-border rounded p-3 mb-4">
-        <div className="text-xs font-mono text-hanoon-text-dim mb-2">▶ TRADES</div>
-        <div className="text-xs text-hanoon-text-dim">Loading trades…</div>
-      </div>
-    );
+  return (
+    <div className="glass rounded-2xl p-4">
+      <div className="text-xs font-mono text-hanoon-text-dim mb-2">▶ TRADES</div>
+      <div className="text-xs text-hanoon-text-dim">Loading trades…</div>
+    </div>
+  );
   }
 
   const trades = data.trades ?? [];
@@ -39,13 +39,13 @@ export function TradesPanel({ data }: TradesPanelProps) {
   ];
 
   return (
-    <div className="bg-hanoon-panel border border-hanoon-border rounded p-3 mb-4">
-      <div className="text-xs font-mono text-hanoon-accent mb-2">▶ TRADES — Execution Log</div>
+    <div className="glass rounded-2xl p-4">
+      <div className="text-xs font-mono text-hanoon-accent glow-accent mb-2">▶ TRADES — Execution Log</div>
 
       {/* Buffer stats */}
       <div className="grid grid-cols-4 gap-2 mb-3">
         {bufferStats.map((s) => (
-          <div key={s.label} className="bg-hanoon-bg rounded p-2 border border-hanoon-border text-center">
+          <div key={s.label} className="glass-inset rounded-xl p-2 text-center">
             <div className="text-xs text-hanoon-text-dim">{s.label}</div>
             <div className="text-sm font-medium text-hanoon-text">{s.value}</div>
           </div>

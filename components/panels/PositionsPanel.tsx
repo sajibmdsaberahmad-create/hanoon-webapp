@@ -24,7 +24,7 @@ export function PositionsPanel({ data }: PositionsPanelProps) {
 
   if (!data) {
     return (
-      <div className="bg-hanoon-panel border border-hanoon-border rounded p-3 mb-4">
+      <div className="glass rounded-2xl p-4">
         <div className="text-xs font-mono text-hanoon-text-dim mb-2">▶ POSITIONS</div>
         <div className="text-xs text-hanoon-text-dim">Loading positions…</div>
       </div>
@@ -33,7 +33,7 @@ export function PositionsPanel({ data }: PositionsPanelProps) {
 
   if (positions.length === 0) {
     return (
-      <div className="bg-hanoon-panel border border-hanoon-border rounded p-3 mb-4">
+      <div className="glass rounded-2xl p-4">
         <div className="text-xs font-mono text-hanoon-text-dim mb-2">▶ POSITIONS</div>
         <div className="text-xs text-hanoon-text-dim">No open positions. Portfolio is flat.</div>
       </div>
@@ -41,8 +41,8 @@ export function PositionsPanel({ data }: PositionsPanelProps) {
   }
 
   return (
-    <div className="bg-hanoon-panel border border-hanoon-border rounded p-3 mb-4">
-      <div className="text-xs font-mono text-hanoon-nash mb-2">▶ POSITIONS ({positions.length})</div>
+    <div className="glass rounded-2xl p-4">
+      <div className="text-xs font-mono text-hanoon-nash glow-nash mb-2">▶ POSITIONS ({positions.length})</div>
       <div className="overflow-x-auto">
         <table className="w-full text-xs font-mono">
           <thead>

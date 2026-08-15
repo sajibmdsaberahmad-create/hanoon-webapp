@@ -1,8 +1,7 @@
-import { getBridgeClient } from '@/lib/api';
 import { formatPrice } from '@/lib/utils';
 import type { ReactNode } from 'react';
 
-// ── Header: top status bar ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ── Header: top status bar (frosted glass) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 interface HeaderProps {
   summary: {
@@ -54,12 +53,12 @@ export function Header({ summary }: HeaderProps): ReactNode {
   const pnlSign = sessionPnl >= 0 ? '+' : '';
 
   return (
-    <header className="bg-hanoon-panel border-b border-hanoon-border px-4 py-2.5 flex items-center justify-between text-xs font-mono">
+    <header className="glass-strong sticky top-0 z-40 px-4 py-3 flex items-center justify-between text-xs font-mono">
       {/* Left: Bot status */}
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <div className={`w-2 h-2 rounded-full ${statusDot} animate-pulse-slow`} />
-          <span className="text-hanoon-text">BOT</span>
+          <span className="text-hanoon-text font-semibold tracking-wider">BOT</span>
           <span className={botAlive ? 'text-hanoon-success' : 'text-hanoon-error'}>
             {botAlive ? 'ALIVE' : 'DEAD'}
           </span>
@@ -82,7 +81,7 @@ export function Header({ summary }: HeaderProps): ReactNode {
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-2">
           <span className="text-hanoon-text-dim">EQUITY</span>
-          <span className="text-hanoon-text font-medium">{formatPrice(equity)}</span>
+          <span className="text-hanoon-text font-semibold glow-accent">{formatPrice(equity)}</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-hanoon-text-dim">P&L</span>
@@ -94,11 +93,11 @@ export function Header({ summary }: HeaderProps): ReactNode {
 
       {/* Right: Layer badges */}
       <div className="flex items-center gap-2">
-        <span className="px-2 py-0.5 bg-hanoon-bg border border-hanoon-border rounded text-hanoon-juli text-xs">JULI</span>
-        <span className="px-2 py-0.5 bg-hanoon-bg border border-hanoon-border rounded text-hanoon-nash text-xs">NASH</span>
-        <span className="px-2 py-0.5 bg-hanoon-bg border border-hanoon-border rounded text-hanoon-halim text-xs">HALIM</span>
-        <span className="px-2 py-0.5 bg-hanoon-bg border border-hanoon-border rounded text-hanoon-text-dim text-xs">IB</span>
-        <span className="px-2 py-0.5 bg-hanoon-bg border border-hanoon-border rounded text-hanoon-accent text-xs">WEB</span>
+        <span className="px-2 py-0.5 glass-pill text-hanoon-juli glow-juli">JULI</span>
+        <span className="px-2 py-0.5 glass-pill text-hanoon-nash glow-nash">NASH</span>
+        <span className="px-2 py-0.5 glass-pill text-hanoon-halim glow-halim">HALIM</span>
+        <span className="px-2 py-0.5 glass-pill text-hanoon-text-dim">IB</span>
+        <span className="px-2 py-0.5 glass-pill text-hanoon-accent glow-accent">WEB</span>
       </div>
     </header>
   );

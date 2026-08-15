@@ -37,21 +37,23 @@ export function ControlPanel() {
   ];
 
   return (
-    <div className="bg-hanoon-panel border border-hanoon-border rounded p-3">
-      <div className="text-xs text-hanoon-text-dim mb-2">Bot Controls</div>
-      <div className="grid grid-cols-3 gap-1.5">
+    <div className="glass rounded-2xl p-4">
+      <div className="text-xs text-hanoon-text-dim mb-3 tracking-wider">
+        <span className="text-hanoon-accent">◈</span> BOT CONTROLS
+      </div>
+      <div className="grid grid-cols-2 gap-2">
         {buttons.map((btn) => (
           <button
             key={btn.action}
             onClick={() => sendCommand(btn.action)}
             disabled={loading === btn.action}
-            className={`px-2 py-1.5 text-xs border rounded hover:bg-hanoon-bg transition text-center disabled:opacity-50 ${btn.color}`}
+            className={`glass-pill px-3 py-2 text-xs rounded-xl text-center disabled:opacity-50 ${btn.color}`}
           >
-            {loading === btn.action ? '⏳' : btn.label}
+            {loading === btn.action ? '⏳ …' : btn.label}
           </button>
         ))}
       </div>
-      {result && <div className="mt-2 text-xs font-mono">{result}</div>}
+      {result && <div className="mt-3 text-xs font-mono glass-inset rounded-lg p-2">{result}</div>}
     </div>
   );
 }
@@ -136,10 +138,10 @@ export function StatCard({ label, value, unit, trend, color, onClick }: StatCard
   return (
     <div
       onClick={onClick}
-      className={`bg-hanoon-panel border border-hanoon-border rounded p-2 cursor-${onClick ? 'pointer' : 'default'} hover:border-hanoon-accent transition`}
+      className={`glass rounded-2xl p-3 cursor-${onClick ? 'pointer' : 'default'} hover:border-hanoon-accent transition`}
     >
-      <div className="text-xs text-hanoon-text-dim uppercase">{label}</div>
-      <div className="text-lg font-medium text-hanoon-text flex items-center gap-1">
+      <div className="text-[10px] text-hanoon-text-dim uppercase tracking-wider">{label}</div>
+      <div className="text-xl font-semibold text-hanoon-text flex items-center gap-1 mt-0.5">
         <span className={color || ''}>{value}</span>
         {unit && <span className="text-xs text-hanoon-text-dim">{unit}</span>}
         <span className={`text-xs ${trendColor}`}>{trendIcon}</span>

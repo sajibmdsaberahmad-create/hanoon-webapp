@@ -2,20 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─────────────────────────────────────────────────────────────────────
+   HANOON 3.0 — Frosted-glass design system
+   Moving aurora background · blurred overlay · glassmorphism panels
+   ───────────────────────────────────────────────────────────────────── */
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0a0a12;
+  background: rgba(10, 10, 18, 0.4);
 }
 ::-webkit-scrollbar-thumb {
-  background: #2a2a3a;
+  background: rgba(255, 255, 255, 0.18);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3a3a4a;
+  background: rgba(255, 255, 255, 0.3);
 }
 
 /* Blinking cursor for terminal-style elements */
@@ -23,10 +28,160 @@
   animation: blink 1s step-end infinite;
 }
 
-/* Grid background pattern */
+/* Grid background pattern (subtle, under glass) */
 .bg-grid {
   background-image:
-    linear-gradient(rgba(42, 42, 58, 0.3) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(42, 42, 58, 0.3) 1px, transparent 1px);
-  background-size: 20px 20px;
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* ── Moving aurora background ─────────────────────────────────────────
+   Three large radial "orbs" drift on infinite paths, with a hue cycle.
+   A dark blurred overlay sits on top so glass panels stay legible. */
+.aurora-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  background: #05050c;
+}
+
+.aurora-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  mix-blend-mode: screen;
+  will-change: transform, opacity;
+}
+
+.aurora-orb-1 {
+  width: 60vmax;
+  height: 60vmax;
+  left: -15vmax;
+  top: -20vmax;
+  background: radial-gradient(circle at 40% 40%,
+    rgba(0, 212, 170, 0.55) 0%, rgba(41, 182, 246, 0.25) 45%, transparent 70%);
+  animation: orb-drift-1 26s ease-in-out infinite alternate;
+}
+
+.aurora-orb-2 {
+  width: 55vmax;
+  height: 55vmax;
+  right: -18vmax;
+  top: 10vmax;
+  background: radial-gradient(circle at 60% 40%,
+    rgba(170, 0, 255, 0.4) 0%, rgba(41, 182, 246, 0.2) 45%, transparent 70%);
+  animation: orb-drift-2 32s ease-in-out infinite alternate;
+}
+
+.aurora-orb-3 {
+  width: 50vmax;
+  height: 50vmax;
+  left: 25vmax;
+  bottom: -25vmax;
+  background: radial-gradient(circle at 50% 50%,
+    rgba(0, 230, 118, 0.3) 0%, rgba(255, 170, 0, 0.15) 50%, transparent 75%);
+  animation: orb-drift-3 38s ease-in-out infinite alternate;
+}
+
+@keyframes orb-drift-1 {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(18vmax, 12vmax) scale(1.15); }
+  100% { transform: translate(-10vmax, 20vmax) scale(0.9); }
+}
+
+@keyframes orb-drift-2 {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(-16vmax, -10vmax) scale(1.1); }
+  100% { transform: translate(12vmax, -18vmax) scale(1.2); }
+}
+
+@keyframes orb-drift-3 {
+  0%   { transform: translate(0, 0) scale(1) rotate(0deg); }
+  50%  { transform: translate(-14vmax, -12vmax) scale(1.25); }
+  100% { transform: translate(10vmax, -6vmax) scale(0.95); }
+}
+
+/* Blurred overlay above the aurora, below the content */
+.aurora-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(5, 5, 12, 0.5), transparent 55%),
+    radial-gradient(ellipse at 80% 100%, rgba(5, 5, 12, 0.55), transparent 60%),
+    rgba(5, 5, 12, 0.35);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+/* ── Glassmorphism panels ─────────────────────────────────────────────
+   Frosted glass: translucent fill + backdrop blur + hairline border.
+   Use `.glass` for cards and `.glass-inset` for nested wells. */
+.glass {
+  background: linear-gradient(160deg,
+    rgba(24, 26, 40, 0.55) 0%,
+    rgba(14, 15, 26, 0.45) 100%);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.glass-strong {
+  background: linear-gradient(160deg,
+    rgba(30, 32, 48, 0.75) 0%,
+    rgba(16, 17, 30, 0.65) 100%);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.glass-inset {
+  background: rgba(8, 8, 16, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Glass pill button (tab / control) */
+.glass-pill {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s ease;
+}
+.glass-pill:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
+}
+.glass-pill-active {
+  background: linear-gradient(160deg,
+    rgba(0, 212, 170, 0.25) 0%,
+    rgba(41, 182, 246, 0.18) 100%);
+  border-color: rgba(0, 212, 170, 0.45);
+  box-shadow: 0 0 20px rgba(0, 212, 170, 0.15);
+}
+
+/* Soft glow text for accents */
+.glow-accent { text-shadow: 0 0 12px rgba(0, 212, 170, 0.6); }
+.glow-juli   { text-shadow: 0 0 12px rgba(0, 212, 170, 0.5); }
+.glow-nash   { text-shadow: 0 0 12px rgba(41, 182, 246, 0.5); }
+.glow-halim  { text-shadow: 0 0 12px rgba(170, 0, 255, 0.5); }
+
+/* Subtle fade-in for tab content */
+.tab-fade {
+  animation: tab-fade 0.25s ease-out;
+}
+@keyframes tab-fade {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }

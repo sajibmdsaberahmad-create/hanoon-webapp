@@ -30,7 +30,7 @@ export function SystemPanel({ data }: SystemPanelProps) {
   const monitor = data.monitor || {};
 
   return (
-    <div className="bg-hanoon-panel border border-hanoon-border rounded p-3 mb-4">
+    <div className="glass rounded-2xl p-4">
       <div className="text-xs font-mono text-hanoon-warning mb-2">▶ SYSTEM — Monitoring & Health</div>
 
       {/* System Metrics */}
@@ -169,7 +169,7 @@ export function SystemPanel({ data }: SystemPanelProps) {
 
 function PanelPlaceholder({ label }: { label: string }) {
   return (
-    <div className="bg-hanoon-panel border border-hanoon-border rounded p-3 mb-4">
+    <div className="glass rounded-2xl p-4">
       <div className="text-xs font-mono text-hanoon-text-dim mb-2">▶ {label}</div>
       <div className="text-xs text-hanoon-text-dim">Loading system state…</div>
     </div>

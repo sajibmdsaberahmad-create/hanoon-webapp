@@ -47,9 +47,9 @@ function AppContent() {
   return (
     <>
       <Header summary={summary} />
-      <main className="min-h-[calc(100vh-48px)]">
-        {/* Layer status bar */}
-        <div className="p-3 border-b border-hanoon-border flex items-center gap-4 text-xs font-mono">
+      <main className="min-h-[calc(100vh-52px)]">
+        {/* Layer status bar — frosted glass strip */}
+        <div className="glass mx-4 mt-3 mb-1 px-4 py-2 rounded-xl flex flex-wrap items-center gap-4 text-xs font-mono">
           <StatusIndicator
             label="JULI"
             state="active"
@@ -76,7 +76,8 @@ function AppContent() {
             color="text-hanoon-warning"
           />
           <span className="text-hanoon-text-dim ml-auto">
-            Latency: {latencyMs}ms · Data: {loading ? 'loading' : stale ? 'STALE' : 'live'}
+            Latency: <span className={stale ? 'text-hanoon-warning' : 'text-hanoon-success'}>{latencyMs}ms</span>
+            {' '}· Data: {loading ? 'loading' : stale ? 'STALE' : <span className="text-hanoon-success">live</span>}
           </span>
         </div>
         <Dashboard />

@@ -37,7 +37,7 @@ interface DebateRow {
 export function BrainDebate({ data }: BrainDebateProps) {
   if (!data) {
     return (
-      <div className="bg-hanoon-panel border border-hanoon-border rounded p-3 mb-4">
+      <div className="glass rounded-2xl p-4 mb-4">
         <div className="text-xs font-mono text-hanoon-text-dim mb-2">▶ BRAIN DEBATE</div>
         <div className="text-xs text-hanoon-text-dim">Loading debate state…</div>
       </div>
@@ -106,8 +106,8 @@ export function BrainDebate({ data }: BrainDebateProps) {
   }
 
   return (
-    <div className="bg-hanoon-panel border border-hanoon-border rounded p-3 mb-4">
-      <div className="text-xs font-mono text-hanoon-halim mb-2">▶ BRAIN DEBATE</div>
+    <div className="glass rounded-2xl p-4 mb-4">
+      <div className="text-xs font-mono text-hanoon-halim glow-halim mb-2">▶ BRAIN DEBATE</div>
       <div className="space-y-1.5 max-h-40 overflow-y-auto">
         {rows.length === 0 ? (
           <div className="text-xs text-hanoon-text-dim">
