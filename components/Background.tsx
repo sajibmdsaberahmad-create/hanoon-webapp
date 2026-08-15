@@ -1,37 +1,38 @@
-'use client';
-
 /**
- * Background — fixed moving-image backdrop (classic HANOON stack).
+ * Background — subtle dark backdrop for the HANOON command dashboard.
  *
- * 1. /bg.jpg stock-market artwork, heavily blurred + zoomed ("moving image")
- * 2. Three animated aurora orbs floating over the photo
- * 3. A dark gradient veil so frosted-glass panels stay legible
- *
- * The whole layer sits behind the content (fixed, -z) and never blocks
- * interaction.
+ * A fine grid over a deep-navy field with two faint radial glows. Keeps
+ * panels legible and the UI looking like a pro terminal, not a photo mashup.
  */
 
 export function Background() {
   return (
-    <div className="aurora-bg" aria-hidden="true">
-      {/* Blurred stock-market artwork */}
-      <img
-        src="/bg.jpg"
-        alt=""
-        className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-70"
-      />
-      {/* Colourful animated glows over the photo */}
-      <div className="aurora-orb w-80 h-80 sm:w-96 sm:h-96 bg-cyan-500/30 -top-24 -left-24" />
+    <div className="fixed inset-0 -z-10 overflow-hidden bg-hanoon-bg" aria-hidden="true">
+      {/* Base radial wash */}
       <div
-        className="aurora-orb w-96 h-96 sm:w-[30rem] sm:h-[30rem] bg-fuchsia-500/25 top-1/3 -right-32"
-        style={{ animationDelay: '-5s' }}
+        className="absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(1100px 500px at 15% -10%, rgba(45,212,191,0.07), transparent 60%),' +
+            'radial-gradient(900px 480px at 90% 0%, rgba(96,165,250,0.06), transparent 60%)',
+        }}
       />
+      {/* Fine grid */}
       <div
-        className="aurora-orb w-80 h-80 sm:w-96 sm:h-96 bg-amber-500/20 bottom-0 left-1/4"
-        style={{ animationDelay: '-10s' }}
+        className="absolute inset-0 opacity-[0.35]"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),' +
+            'linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
+          backgroundSize: '48px 48px',
+          maskImage:
+            'radial-gradient(ellipse 90% 80% at 50% 0%, black 40%, transparent 100%)',
+          WebkitMaskImage:
+            'radial-gradient(ellipse 90% 80% at 50% 0%, black 40%, transparent 100%)',
+        }}
       />
-      {/* Light readability veil — keeps glass cards legible without dimming the colour */}
-      <div className="absolute inset-0 bg-gradient-to-b from-indigo-950/35 via-fuchsia-950/25 to-slate-950/75" />
+      {/* Bottom vignette */}
+      <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-black/50 to-transparent" />
     </div>
   );
 }

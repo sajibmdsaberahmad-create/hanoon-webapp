@@ -1,11 +1,25 @@
 'use client';
 
 import { useState } from 'react';
+import {
+  PauseIcon,
+  PlayIcon,
+  ShieldExclamationIcon,
+  MoonIcon,
+  SunIcon,
+  LockClosedIcon,
+  ArrowsRightLeftIcon,
+  BoltIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  ChevronRightIcon,
+} from '@heroicons/react/24/outline';
 import { useTelemetry } from '@/components/TelemetryProvider';
 import { getBridgeClient } from '@/lib/api';
+import { Panel, SectionTitle } from '@/components/ui';
 
 /**
- * CommandCenter — the actionable bridge controls (classic dashboard).
+ * CommandCenter — the actionable bridge controls.
  * Every button POSTs to /command; the bot's runner executes on its own
  * thread. Dangerous actions require confirm().
  *
@@ -46,7 +60,7 @@ export function CommandCenter() {
     const res = await client.postCommand(action as any, payload);
     setFeedback(
       res.ok
-        ? { text: `${label} → sent to bot ✓`, tone: 'ok' }
+        ? { text: `${label} → sent to bot`, tone: 'ok' }
         : { text: `${label} → ${res.error || 'FAILED'}`, tone: 'err' }
     );
     setBusy(null);
@@ -76,155 +90,156 @@ export function CommandCenter() {
     run('set_sessions', 'Apply sessions', { sessions: sessions.join(',') });
   }
 
-  const btnBase =
-    'px-3 py-2.5 rounded-lg border text-xs font-bold font-mono transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-md';
-
   return (
-    <div className="space-y-5">
+    <div className="mx-auto max-w-3xl space-y-4">
       {/* ── Emergency ── */}
-      <section className="glass glass-hover rounded-2xl p-4 sm:p-5">
-        <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-2">
-          Emergency Controls
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <Panel title="Emergency controls">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           <button
-            className={`${btnBase} text-red-400 border-red-500/40 bg-red-500/10 hover:bg-red-500/20`}
+            className="btn btn-danger"
             disabled={!!busy}
             onClick={() => confirmDanger('Flatten All', 'flatten')}
           >
-            🚨 Flatten All
+            <ShieldExclamationIcon className="h-4 w-4" />
+            Flatten All
           </button>
           <button
-            className={`${btnBase} text-amber-400 border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20`}
+            className="btn btn-warning"
             disabled={!!busy}
             onClick={() => confirmDanger('Defensive Mode', 'defensive')}
           >
-            🛡️ Defensive
+            <ShieldExclamationIcon className="h-4 w-4" />
+            Defensive
           </button>
           <button
-            className={`${btnBase} text-green-400 border-green-500/40 bg-green-500/10 hover:bg-green-500/20`}
+            className="btn btn-warning"
             disabled={!!busy}
             onClick={() => run('pause', 'Pause trading')}
           >
-            ⏸ Pause
+            <PauseIcon className="h-4 w-4" />
+            Pause
           </button>
           <button
-            className={`${btnBase} text-green-400 border-green-500/40 bg-green-500/10 hover:bg-green-500/20`}
+            className="btn btn-success"
             disabled={!!busy}
             onClick={() => run('resume', 'Resume trading')}
           >
-            ▶ Resume
+            <PlayIcon className="h-4 w-4" />
+            Resume
           </button>
         </div>
-      </section>
+      </Panel>
 
       {/* ── Sleep / schedule ── */}
-      <section className="glass glass-hover rounded-2xl p-4 sm:p-5">
-        <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-2">
-          Sleep & Schedule
+      <Panel
+        title="Sleep & schedule"
+        badge={
           <span
-            className={`ml-2 px-2 py-0.5 rounded-full font-mono text-[9px] ${
-              sleeping
-                ? 'text-amber-400 bg-amber-500/10 border border-amber-500/30'
-                : 'text-green-400 bg-green-500/10 border border-green-500/30'
-            }`}
+            className={`badge ${sleeping ? 'badge-warning' : 'badge-success'}`}
           >
-            {sleeping ? '😴 SLEEPING' : '☀️ ACTIVE'}
+            <span className={`dot ${sleeping ? 'dot-warning' : 'dot-success dot-live'}`} />
+            {sleeping ? 'Sleeping' : 'Active'}
           </span>
-        </div>
-        <div className="grid grid-cols-2 gap-2 mb-3">
+        }
+      >
+        <div className="grid grid-cols-2 gap-2">
           <button
-            className={`${btnBase} text-amber-400 border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20`}
+            className="btn btn-warning"
             disabled={!!busy}
             onClick={() => run('sleep', 'Sleep now', { reason: 'manual' })}
           >
-            😴 Sleep Now
+            <MoonIcon className="h-4 w-4" />
+            Sleep Now
           </button>
           <button
-            className={`${btnBase} text-green-400 border-green-500/40 bg-green-500/10 hover:bg-green-500/20`}
+            className="btn btn-success"
             disabled={!!busy}
             onClick={() => run('wake', 'Wake now', { reason: 'manual' })}
           >
-            ☀️ Wake Now
+            <SunIcon className="h-4 w-4" />
+            Wake Now
           </button>
         </div>
 
-        <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-2">
-          Trading Sessions (ET)
+        <div className="mt-4">
+          <SectionTitle>Trading sessions (ET)</SectionTitle>
+          <div className="flex flex-wrap gap-2">
+            {SESSIONS.map((s) => {
+              const on = sessions.includes(s.id);
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => toggleSession(s.id)}
+                  className={`btn ${on ? 'btn-success' : ''}`}
+                >
+                  {on && <CheckCircleIcon className="h-4 w-4" />}
+                  {s.label}
+                  <span className="text-hanoon-text-faint">{s.sub}</span>
+                </button>
+              );
+            })}
+          </div>
+          <button
+            className={`btn btn-success mt-3 ${sessDirty ? 'animate-pulse-slow' : ''}`}
+            disabled={!!busy}
+            onClick={applySessions}
+          >
+            <ChevronRightIcon className="h-4 w-4" />
+            {sessDirty ? 'Apply Sessions' : 'Apply Sessions'}
+          </button>
         </div>
-        <div className="flex flex-wrap gap-2 mb-2">
-          {SESSIONS.map((s) => {
-            const on = sessions.includes(s.id);
-            return (
-              <button
-                key={s.id}
-                onClick={() => toggleSession(s.id)}
-                className={`px-3 py-1.5 rounded-lg border text-xs font-mono transition-all active:scale-95 ${
-                  on
-                    ? 'text-emerald-300 border-emerald-500/50 bg-emerald-500/15 backdrop-blur-md'
-                    : 'text-gray-500 border-white/10 bg-white/5 backdrop-blur-md hover:text-gray-300'
-                }`}
-              >
-                {s.label}
-                <span className="ml-1 text-[9px] opacity-70">{s.sub}</span>
-              </button>
-            );
-          })}
-        </div>
-        <button
-          className={`${btnBase} w-full sm:w-auto text-emerald-300 border-emerald-500/50 bg-emerald-500/10 hover:bg-emerald-500/20 ${
-            sessDirty ? 'border-pulse' : ''
-          }`}
-          disabled={!!busy}
-          onClick={applySessions}
-        >
-          {sessDirty ? 'Apply Sessions ●' : 'Apply Sessions'}
-        </button>
-      </section>
+      </Panel>
 
       {/* ── Direction ── */}
-      <section className="glass glass-hover rounded-2xl p-4 sm:p-5">
-        <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-2">
-          Trading Direction
+      <Panel
+        title="Trading direction"
+        badge={
           <span
-            className={`ml-2 px-2 py-0.5 rounded-full font-mono text-[9px] ${
-              longOnly
-                ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30'
-                : 'text-amber-400 bg-amber-500/10 border border-amber-500/30'
-            }`}
+            className={`badge ${longOnly ? 'badge-info' : 'badge-warning'}`}
           >
-            {longOnly ? '🔒 LONG-ONLY' : '⇅ SHORTS ALLOWED'}
+            <span className={`dot ${longOnly ? 'dot-info' : 'dot-warning'}`} />
+            {longOnly ? 'Long-only' : 'Shorts allowed'}
           </span>
-        </div>
+        }
+      >
         <div className="grid grid-cols-2 gap-2">
           <button
-            className={`${btnBase} text-blue-400 border-blue-500/40 bg-blue-500/10 hover:bg-blue-500/20`}
+            className="btn btn-info"
             disabled={!!busy}
             onClick={() => run('set_long_only', 'Long-only ON', { enabled: 'true' })}
           >
+            <LockClosedIcon className="h-4 w-4" />
             Long-Only ON
           </button>
           <button
-            className={`${btnBase} text-amber-400 border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20`}
+            className="btn btn-warning"
             disabled={!!busy}
             onClick={() => run('set_long_only', 'Allow shorts', { enabled: 'false' })}
           >
+            <ArrowsRightLeftIcon className="h-4 w-4" />
             Allow Shorts
           </button>
         </div>
-      </section>
+      </Panel>
 
       {/* ── Feedback ── */}
       {feedback && (
         <div
-          className={`text-xs font-mono px-3 py-2 rounded-lg border ${
+          className={`animate-fade-in flex items-center gap-2 rounded-lg border px-3 py-2 text-xs ${
             feedback.tone === 'ok'
-              ? 'text-green-400 border-green-500/30 bg-green-500/10'
+              ? 'border-hanoon-success/30 text-hanoon-success'
               : feedback.tone === 'err'
-              ? 'text-red-400 border-red-500/30 bg-red-500/10'
-              : 'text-amber-400 border-amber-500/30 bg-amber-500/10 animate-pulse'
+              ? 'border-hanoon-error/30 text-hanoon-error'
+              : 'border-hanoon-warning/30 text-hanoon-warning'
           }`}
         >
+          {feedback.tone === 'ok' ? (
+            <CheckCircleIcon className="h-4 w-4" />
+          ) : feedback.tone === 'err' ? (
+            <XCircleIcon className="h-4 w-4" />
+          ) : (
+            <BoltIcon className="h-4 w-4 animate-pulse" />
+          )}
           {feedback.text}
         </div>
       )}

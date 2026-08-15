@@ -1,7 +1,8 @@
 import { formatPrice } from '@/lib/utils';
 import type { ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 
-// ── Header: top status bar (frosted glass) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ── Header: command center top bar ─────────────────────────────────────────
 
 interface HeaderProps {
   summary: {
@@ -15,6 +16,14 @@ interface HeaderProps {
   };
 }
 
+const connectionMeta: Record<string, { label: string; badge: string; dot: string }> = {
+  connected: { label: 'Connected', badge: 'badge-success', dot: 'dot-success dot-live' },
+  connecting: { label: 'Connecting', badge: 'badge-warning', dot: 'dot-warning' },
+  stale: { label: 'Stale data', badge: 'badge-warning', dot: 'dot-warning' },
+  disconnected: { label: 'Disconnected', badge: 'badge-error', dot: 'dot-error' },
+  error: { label: 'Connection error', badge: 'badge-error', dot: 'dot-error' },
+};
+
 export function Header({ summary }: HeaderProps): ReactNode {
   const {
     equity,
@@ -26,95 +35,95 @@ export function Header({ summary }: HeaderProps): ReactNode {
     ts,
   } = summary;
 
-  const connectionLabel = {
-    connected: 'CONNECTED',
-    connecting: 'Connecting…',
-    stale: 'STALE',
-    disconnected: 'DISCONNECTED',
-    error: 'ERROR',
-  }[connectionState as keyof typeof connectionLabels] ?? 'UNKNOWN';
+  const conn = connectionMeta[connectionState] ?? connectionMeta.disconnected;
+  const pnlPositive = sessionPnl >= 0;
 
-  const connectionColor = {
-    connected: 'text-hanoon-success',
-    connecting: 'text-hanoon-warning',
-    stale: 'text-hanoon-warning',
-    disconnected: 'text-hanoon-error',
-    error: 'text-hanoon-error',
-  }[connectionState as keyof typeof connectionColors] ?? 'text-hanoon-text-dim';
-
-  const statusDot = botAlive ? 'bg-hanoon-success' : 'bg-hanoon-error';
-
-  // Format uptime
   const hours = Math.floor(uptime / 3600);
   const mins = Math.floor((uptime % 3600) / 60);
-  const uptimeStr = `${hours}h ${mins}m`;
 
-  const pnlClass = sessionPnl >= 0 ? 'text-hanoon-success' : 'text-hanoon-error';
-  const pnlSign = sessionPnl >= 0 ? '+' : '';
+  // Clock renders only after mount to avoid SSR hydration mismatch.
+  const [clock, setClock] = useState<string | null>(null);
+  useEffect(() => {
+    setClock(
+      new Date(ts * 1000).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      }),
+    );
+  }, [ts]);
 
   return (
-    <header className="glass-strong sticky top-0 z-40 px-4 py-3 flex items-center justify-between text-xs font-mono">
-      {/* Left: Bot status */}
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${statusDot} animate-pulse-slow`} />
-          <span className="text-hanoon-text font-semibold tracking-wider">BOT</span>
-          <span className={botAlive ? 'text-hanoon-success' : 'text-hanoon-error'}>
-            {botAlive ? 'ALIVE' : 'DEAD'}
+    <header className="sticky top-0 z-40 border-b border-hanoon-border bg-hanoon-bg/80 backdrop-blur-md">
+      <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
+        {/* Brand */}
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-hanoon-accent to-hanoon-nash font-sans text-sm font-bold text-black">
+            H
+          </div>
+          <div className="leading-tight">
+            <div className="text-sm font-semibold tracking-wide text-hanoon-text">
+              HANOON <span className="text-hanoon-accent">3.0</span>
+            </div>
+            <div className="text-[11px] text-hanoon-text-dim">Trading Intelligence</div>
+          </div>
+        </div>
+
+        {/* Bot + connection status */}
+        <div className="hidden items-center gap-2 md:flex">
+          <span className={`badge ${botAlive ? 'badge-success' : 'badge-error'}`}>
+            <span className={`dot ${botAlive ? 'dot-success dot-live' : 'dot-error'}`} />
+            {botAlive ? 'Engine live' : 'Engine stopped'}
+          </span>
+          <span className={`badge ${conn.badge}`}>
+            <span className={`dot ${conn.dot}`} />
+            {conn.label}
           </span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-hanoon-text-dim">CONN:</span>
-          <span className={connectionColor}>{connectionLabel}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-hanoon-text-dim">UPTIME:</span>
-          <span className="text-hanoon-text">{uptimeStr}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-hanoon-text-dim">TS:</span>
-          <span className="text-hanoon-text-dim">{new Date(ts * 1000).toLocaleTimeString()}</span>
-        </div>
-      </div>
 
-      {/* Center: Equity + P&L */}
-      <div className="flex items-center gap-6">
-        <div className="flex items-center gap-2">
-          <span className="text-hanoon-text-dim">EQUITY</span>
-          <span className="text-hanoon-text font-semibold glow-accent">{formatPrice(equity)}</span>
+        {/* Equity / P&L */}
+        <div className="ml-auto flex items-center gap-5 sm:gap-7">
+          <div className="text-right">
+            <div className="text-[10px] font-semibold uppercase tracking-widest text-hanoon-text-faint">
+              Equity
+            </div>
+            <div className="tnum text-sm font-semibold text-hanoon-text">
+              {formatPrice(equity)}
+            </div>
+          </div>
+          <div className="text-right">
+            <div className="text-[10px] font-semibold uppercase tracking-widest text-hanoon-text-faint">
+              Session P&L
+            </div>
+            <div
+              className={`tnum text-sm font-semibold ${
+                pnlPositive ? 'text-hanoon-success' : 'text-hanoon-error'
+              }`}
+            >
+              {pnlPositive ? '+' : ''}
+              {formatPrice(sessionPnl)}
+              <span className="ml-1.5 text-xs opacity-80">
+                {pnlPositive ? '+' : ''}
+                {drawdownPct.toFixed(2)}%
+              </span>
+            </div>
+          </div>
+          <div className="hidden text-right lg:block">
+            <div className="text-[10px] font-semibold uppercase tracking-widest text-hanoon-text-faint">
+              Uptime
+            </div>
+            <div className="tnum text-sm text-hanoon-text-dim">
+              {hours}h {mins}m
+            </div>
+          </div>
+          <div className="hidden text-right sm:block">
+            <div className="text-[10px] font-semibold uppercase tracking-widest text-hanoon-text-faint">
+              Updated
+            </div>
+            <div className="tnum text-sm text-hanoon-text-dim">{clock ?? '—'}</div>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-hanoon-text-dim">P&L</span>
-          <span className={pnlClass}>
-            {pnlSign}{formatPrice(sessionPnl)} ({pnlSign}{drawdownPct.toFixed(2)}%)
-          </span>
-        </div>
-      </div>
-
-      {/* Right: Layer badges */}
-      <div className="flex items-center gap-2">
-        <span className="px-2 py-0.5 glass-pill text-hanoon-juli glow-juli">JULI</span>
-        <span className="px-2 py-0.5 glass-pill text-hanoon-nash glow-nash">NASH</span>
-        <span className="px-2 py-0.5 glass-pill text-hanoon-halim glow-halim">HALIM</span>
-        <span className="px-2 py-0.5 glass-pill text-hanoon-text-dim">IB</span>
-        <span className="px-2 py-0.5 glass-pill text-hanoon-accent glow-accent">WEB</span>
       </div>
     </header>
   );
 }
-
-const connectionLabels = {
-  connected: 'CONNECTED',
-  connecting: 'Connecting…',
-  stale: 'STALE',
-  disconnected: 'DISCONNECTED',
-  error: 'ERROR',
-};
-
-const connectionColors = {
-  connected: 'text-hanoon-success',
-  connecting: 'text-hanoon-warning',
-  stale: 'text-hanoon-warning',
-  disconnected: 'text-hanoon-error',
-  error: 'text-hanoon-error',
-};

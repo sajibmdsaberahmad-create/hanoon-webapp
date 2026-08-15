@@ -1,9 +1,9 @@
 'use client';
 
 import { getBridgeClient } from '@/lib/api';
-import { formatPercent, formatPrice } from '@/lib/utils';
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { TelemetrySnapshot } from '@/lib/types';
+import { ExclamationTriangleIcon, CloudArrowDownIcon } from '@heroicons/react/24/outline';
 
 /**
  * ReconnectingProvider — wraps the dashboard in a provider that
@@ -37,20 +37,29 @@ export function ReconnectionBanner({
 }) {
   if (state === 'connected' && !stale) return null;
 
-  const bg = state === 'stale' ? 'bg-hanoon-warning/10 border-hanoon-warning' :
-    state === 'error' ? 'bg-hanoon-error/10 border-hanoon-error' :
-    'bg-hanoon-warning/10 border-hanoon-warning';
+  const tone = state === 'error' ? 'error' : 'warning';
+  const text =
+    (state === 'stale' && 'Telemetry is stale — the bridge may not be writing data.') ||
+    (state === 'connected' && stale && 'Telemetry is stale.') ||
+    (state === 'disconnected' && 'Bridge disconnected — retrying…') ||
+    (state === 'error' && `Connection error: ${error}`) ||
+    (state === 'connecting' && 'Connecting to the bridge…');
 
   return (
-    <div className={`border-b px-3 py-1.5 text-xs font-mono ${bg} mb-3`}>
-      <span className="text-hanoon-text-dim">
-        {state === 'stale' && '⚠️ Data stale — bridge may not be writing telemetry'}
-        {state === 'connected' && stale && '⚠️ Data stale'}
-        {state === 'disconnected' && '⏳ Disconnected — retrying…'}
-        {state === 'error' && `❌ Connection error: ${error}`}
-        {state === 'connecting' && '🔄 Connecting…'}
-      </span>
-      <span className="ml-4 text-hanoon-text-dim">Latency: {latency}ms</span>
+    <div
+      className={`animate-fade-in mb-4 flex items-center gap-2 rounded-lg border px-3 py-2 text-xs ${
+        tone === 'error'
+          ? 'border-hanoon-error/30 bg-hanoon-error/5 text-hanoon-error'
+          : 'border-hanoon-warning/30 bg-hanoon-warning/5 text-hanoon-warning'
+      }`}
+    >
+      {tone === 'error' ? (
+        <ExclamationTriangleIcon className="h-4 w-4 shrink-0" />
+      ) : (
+        <CloudArrowDownIcon className="h-4 w-4 shrink-0" />
+      )}
+      <span className="flex-1">{text}</span>
+      <span className="tnum shrink-0 text-hanoon-text-faint">latency {latency}ms</span>
     </div>
   );
 }
@@ -59,16 +68,14 @@ export function ReconnectionBanner({
 
 export function LiveTicker() {
   const { data } = useTicker();
-  if (!data) return <span className="text-xs text-hanoon-text-dim">⏳</span>;
+  if (!data) return <span className="text-xs text-hanoon-text-dim">—</span>;
 
   const now = Date.now();
   const age = now - data.ts * 1000;
-  const pulse = age < 5000 ? 'text-hanoon-success animate-pulse-slow' : 'text-hanoon-text-dim';
+  const live = age < 5000;
 
   return (
-    <span className={`text-xs ${pulse}`}>
-      {'●'}
-    </span>
+    <span className={`dot ${live ? 'dot-success dot-live' : ''}`} />
   );
 }
 

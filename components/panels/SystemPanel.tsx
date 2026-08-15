@@ -1,17 +1,10 @@
 'use client';
 
 import type { TelemetrySnapshot } from '@/lib/types';
-import { formatPrice, formatPercent, formatCurrency } from '@/lib/utils';
+import { Panel, StatCard, Skeleton } from '@/components/ui';
 
 /**
  * System Panel — L5 Monitoring: system metrics, watchdog, sleep, telemetry.
- *
- * Shows:
- *  - System metrics (CPU, memory, disk)
- *  - Watchdog state (panic mode, IB connected, tick health)
- *  - Sleep state (sleep mode, reason, IB reachability)
- *  - Telemetry hub (running, push interval, uptime)
- *  - Monitoring threads status
  */
 
 interface SystemPanelProps {
@@ -20,7 +13,11 @@ interface SystemPanelProps {
 
 export function SystemPanel({ data }: SystemPanelProps) {
   if (!data) {
-    return <PanelPlaceholder label="SYSTEM — Monitoring" />;
+    return (
+      <Panel title="System">
+        <Skeleton className="h-32 w-full" />
+      </Panel>
+    );
   }
 
   const system = data.system || {};
@@ -30,148 +27,139 @@ export function SystemPanel({ data }: SystemPanelProps) {
   const monitor = data.monitor || {};
 
   return (
-    <div className="glass rounded-2xl p-4">
-      <div className="text-xs font-mono text-hanoon-warning mb-2">▶ SYSTEM — Monitoring & Health</div>
-
-      {/* System Metrics */}
-      <div className="grid grid-cols-3 gap-2 mb-3 text-xs">
-        <div>
-          <span className="text-hanoon-text-dim">CPU:</span>
-          <span className={system.cpu_pct > 70 ? 'text-hanoon-error' : 'text-hanoon-success'}>
-            {system.cpu_pct?.toFixed(1)}%
-          </span>
+    <div className="space-y-4">
+      {/* System metrics */}
+      <Panel title="Machine">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <StatCard
+            label="CPU"
+            value={`${(system.cpu_pct ?? 0).toFixed(1)}%`}
+            tone={(system.cpu_pct ?? 0) > 70 ? 'error' : 'success'}
+          />
+          <StatCard
+            label="Memory"
+            value={`${(system.memory_pct ?? 0).toFixed(1)}%`}
+            hint={`${(system.memory_rss_mb ?? 0).toFixed(0)}MB RSS`}
+            tone={(system.memory_pct ?? 0) > 80 ? 'error' : 'success'}
+          />
+          <StatCard
+            label="Disk"
+            value={`${(system.disk_pct ?? 0).toFixed(1)}%`}
+            tone={(system.disk_pct ?? 0) > 90 ? 'error' : 'success'}
+          />
+          <StatCard
+            label="Uptime"
+            value={`${Math.floor(data.uptime_sec ?? 0)}s`}
+          />
         </div>
-        <div>
-          <span className="text-hanoon-text-dim">Memory:</span>
-          <span className={system.memory_pct > 80 ? 'text-hanoon-error' : 'text-hanoon-success'}>
-            {system.memory_pct?.toFixed(1)}% ({system.memory_rss_mb?.toFixed(0)}MB)
-          </span>
-        </div>
-        <div>
-          <span className="text-hanoon-text-dim">Disk:</span>
-          <span className={system.disk_pct > 90 ? 'text-hanoon-error' : 'text-hanoon-success'}>
-            {system.disk_pct?.toFixed(1)}%
-          </span>
-        </div>
-      </div>
+      </Panel>
 
       {/* Watchdog */}
-      <div className="border-t border-hanoon-border/30 pt-2 mb-2 text-xs">
-        <div className="text-xs text-hanoon-text-dim mb-1">Watchdog</div>
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <span className="text-hanoon-text-dim">Running:</span>
-            <span className={watchdog.running ? 'text-hanoon-success' : 'text-hanoon-error'}>
-              {watchdog.running ? '●' : '○'}
-            </span>
-          </div>
-          <div>
-            <span className="text-hanoon-text-dim">IB Connected:</span>
-            <span className={watchdog.ib_connected ? 'text-hanoon-success' : 'text-hanoon-error'}>
-              {watchdog.ib_connected ? 'YES' : 'NO'}
-            </span>
-          </div>
-          <div>
-            <span className="text-hanoon-text-dim">IB Time Offset:</span>
-            <span className={Math.abs(watchdog.ib_time_offset ?? 0) > 2 ? 'text-hanoon-error' : 'text-hanoon-success'}>
-              {watchdog.ib_time_offset?.toFixed(2)}s
-            </span>
-          </div>
-          <div>
-            <span className="text-hanoon-text-dim">Panic Mode:</span>
-            <span className={watchdog.panic_mode ? 'text-hanoon-error' : 'text-hanoon-success'}>
-              {watchdog.panic_mode ? 'PANIC' : 'OK'}
-            </span>
-          </div>
-          {watchdog.panic_reason && (
-            <div className="col-span-2">
-              <span className="text-hanoon-text-dim">Panic Reason:</span>
-              <span className="text-hanoon-error">{watchdog.panic_reason}</span>
-            </div>
-          )}
-          <div>
-            <span className="text-hanoon-text-dim">Tick Count:</span>
-            <span className="text-hanoon-text">{watchdog.tick_count ?? 0}</span>
-          </div>
-          <div>
-            <span className="text-hanoon-text-dim">Stale Ticks:</span>
-            <span className={watchdog.stale_ticks > 0 ? 'text-hanoon-error' : 'text-hanoon-success'}>
-              {watchdog.stale_ticks ?? 0}
-            </span>
-          </div>
+      <Panel title="Watchdog">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <StatCard
+            label="Running"
+            value={watchdog.running ? 'Yes' : 'No'}
+            tone={watchdog.running ? 'success' : 'error'}
+          />
+          <StatCard
+            label="IB connected"
+            value={watchdog.ib_connected ? 'Yes' : 'No'}
+            tone={watchdog.ib_connected ? 'success' : 'error'}
+          />
+          <StatCard
+            label="IB time offset"
+            value={`${(watchdog.ib_time_offset ?? 0).toFixed(2)}s`}
+            tone={Math.abs(watchdog.ib_time_offset ?? 0) > 2 ? 'error' : 'success'}
+          />
+          <StatCard
+            label="Panic mode"
+            value={watchdog.panic_mode ? 'PANIC' : 'OK'}
+            tone={watchdog.panic_mode ? 'error' : 'success'}
+          />
+          <StatCard label="Tick count" value={String(watchdog.tick_count ?? 0)} />
+          <StatCard
+            label="Stale ticks"
+            value={String(watchdog.stale_ticks ?? 0)}
+            tone={(watchdog.stale_ticks ?? 0) > 0 ? 'error' : 'success'}
+          />
         </div>
-      </div>
+        {watchdog.panic_reason && (
+          <div className="mt-3 rounded-lg border border-hanoon-error/30 bg-hanoon-error/5 px-3 py-2 text-xs text-hanoon-error">
+            {watchdog.panic_reason}
+          </div>
+        )}
+      </Panel>
 
-      {/* Sleep State */}
-      <div className="border-t border-hanoon-border/30 pt-2 mb-2">
-        <div className="text-xs text-hanoon-text-dim mb-1">Sleep Manager</div>
-        <div className="grid grid-cols-2 gap-2 text-xs">
-          <div>
-            <span className="text-hanoon-text-dim">State:</span>
-            <span className={
-              sleep.sleep_state === 'awake' ? 'text-hanoon-success' :
-              sleep.sleep_state === 'weekend' || sleep.sleep_state === 'closed' ? 'text-hanoon-text-dim' :
-              'text-hanoon-warning'
-            }>{sleep.sleep_state || '—'}</span>
-          </div>
-          <div>
-            <span className="text-hanoon-text-dim">Active:</span>
-            <span className={sleep.is_active ? 'text-hanoon-error' : 'text-hanoon-success'}>
-              {sleep.is_active ? 'SLEEPING' : 'AWAKE'}
-            </span>
-          </div>
-          {sleep.sleep_reason && (
-            <div className="col-span-2">
-              <span className="text-hanoon-text-dim">Reason: </span>
-              <span className="text-hanoon-text-dim">{sleep.sleep_reason}</span>
-            </div>
-          )}
+      {/* Sleep manager */}
+      <Panel title="Sleep manager">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <StatCard
+            label="State"
+            value={sleep.sleep_state || '—'}
+            tone={sleep.is_active ? 'warning' : 'success'}
+          />
+          <StatCard
+            label="Active"
+            value={sleep.is_active ? 'Sleeping' : 'Awake'}
+            tone={sleep.is_active ? 'warning' : 'success'}
+          />
+          <StatCard
+            label="Last check"
+            value={
+              sleep.last_check
+                ? new Date(sleep.last_check * 1000).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
+                : '—'
+            }
+          />
+          <StatCard
+            label="IB reachable"
+            value={(data as any)?.sleep?.ib_reachable ? 'Yes' : 'Unknown'}
+          />
         </div>
-      </div>
+        {sleep.sleep_reason && (
+          <div className="mt-3 text-xs text-hanoon-text-dim">
+            Reason: {sleep.sleep_reason}
+          </div>
+        )}
+      </Panel>
 
-      {/* Position Monitor */}
+      {/* Position monitor + telemetry hub */}
       {monitor && (
-        <div className="border-t border-hanoon-border/30 pt-2 text-xs">
-          <div className="text-xs text-hanoon-text-dim mb-1">Position Monitor</div>
-          <div className="grid grid-cols-3 gap-2">
-            <div>
-              <span className="text-hanoon-text-dim">Running:</span>
-              <span className={monitor.running ? 'text-hanoon-success' : 'text-hanoon-error'}>
-                {monitor.running ? '●' : '○'}
-              </span>
-            </div>
-            <div>
-              <span className="text-hanoon-text-dim">Pulse:</span>
-              <span className="text-hanoon-text">{monitor.pulse_sec}s</span>
-            </div>
-            <div>
-              <span className="text-hanoon-text-dim">Positions:</span>
-              <span className="text-hanoon-text">{monitor.positions_monitored ?? 0}</span>
-            </div>
+        <Panel title="Position monitor">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <StatCard
+              label="Running"
+              value={monitor.running ? 'Yes' : 'No'}
+              tone={monitor.running ? 'success' : 'error'}
+            />
+            <StatCard label="Pulse" value={`${monitor.pulse_sec}s`} />
+            <StatCard label="Monitored" value={String(monitor.positions_monitored ?? 0)} />
+            <StatCard label="Brackets" value={String(Object.keys(monitor.brackets ?? {}).length)} />
           </div>
-        </div>
+        </Panel>
       )}
 
-      {/* Telemetry Hub */}
       {telemetryHub && (
-        <div className="border-t border-hanoon-border/30 pt-2 mt-2 text-xs">
-          <div className="text-xs text-hanoon-text-dim">
-            Telemetry Hub: {telemetryHub.running ? '● running' : '○ stopped'}
-            · push: {telemetryHub.push_interval}s
-            · history: {telemetryHub.history_size}
-            · uptime: {Math.floor(telemetryHub.uptime_sec)}s
+        <Panel title="Telemetry hub">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <StatCard
+              label="Running"
+              value={telemetryHub.running ? 'Yes' : 'No'}
+              tone={telemetryHub.running ? 'success' : 'error'}
+            />
+            <StatCard label="Push interval" value={`${telemetryHub.push_interval}s`} />
+            <StatCard label="History size" value={String(telemetryHub.history_size ?? 0)} />
+            <StatCard
+              label="Uptime"
+              value={`${Math.floor(telemetryHub.uptime_sec ?? 0)}s`}
+            />
           </div>
-        </div>
+        </Panel>
       )}
-    </div>
-  );
-}
-
-function PanelPlaceholder({ label }: { label: string }) {
-  return (
-    <div className="glass rounded-2xl p-4">
-      <div className="text-xs font-mono text-hanoon-text-dim mb-2">▶ {label}</div>
-      <div className="text-xs text-hanoon-text-dim">Loading system state…</div>
     </div>
   );
 }

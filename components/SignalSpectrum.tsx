@@ -2,13 +2,10 @@
 
 import type { TelemetrySnapshot } from '@/lib/types';
 import { useEffect, useState } from 'react';
+import { Panel, StatCard } from '@/components/ui';
 
 /**
  * Signal Spectrum — Live JULI signal strength visualization.
- *
- * Renders each of JULI's alpha signals as a breathing bar:
- *  green (bullish) → amber (neutral) → red (bearish).
- * Shows the signal engine status and a live decision ticker.
  */
 
 interface SignalSpectrumProps {
@@ -34,62 +31,102 @@ export function SignalSpectrum({ data }: SignalSpectrumProps) {
   const signalStatus = data?.signal_engine_status ?? '—';
 
   return (
-    <div className="glass rounded-2xl p-4 mb-4">
-      <div className="text-xs font-mono text-hanoon-text-dim mb-2">▶ SIGNAL SPECTRUM</div>
-
-      {/* Signal engine status */}
-      <div className="flex items-center gap-3 mb-3 text-xs">
-        <span className="text-hanoon-text-dim">Engine:</span>
-        <span className={signalEngine ? 'text-hanoon-success' : 'text-hanoon-error'}>
-          {signalEngine ? 'ON' : 'OFF'}
+    <Panel
+      title="Signal spectrum"
+      badge={
+        <span className={`badge ${signalEngine ? 'badge-success' : 'badge-error'}`}>
+          <span className={`dot ${signalEngine ? 'dot-success' : 'dot-error'}`} />
+          {signalEngine ? 'Engine on' : 'Engine off'}
         </span>
-        <span className="text-hanoon-text-dim">Status: {signalStatus}</span>
-        <span className="text-hanoon-text-dim">Score: {signalScore.toFixed(4)}</span>
+      }
+    >
+      {/* Engine summary */}
+      <div className="mb-4 grid grid-cols-3 gap-3">
+        <StatCard label="Status" value={signalStatus} />
+        <StatCard label="Score" value={signalScore.toFixed(4)} />
+        <StatCard
+          label="Verdict"
+          value={data?.brain?.verdict ?? '—'}
+          tone={
+            data?.brain?.verdict === 'BUY'
+              ? 'success'
+              : data?.brain?.verdict === 'SELL'
+              ? 'error'
+              : 'warning'
+          }
+        />
       </div>
 
       {/* Signal bars */}
       {signalKeys.length > 0 ? (
-        <div className="space-y-1 max-h-48 overflow-y-auto">
+        <div className="space-y-1.5">
           {signalKeys.map((key, i) => {
             const val = Number(alpha[key]) || 0;
             const intensity = Math.abs(val);
             const isScanning = i === scanIndex;
-            const barColor = val > 0.05 ? 'bg-hanoon-success' :
-              val < -0.05 ? 'bg-hanoon-error' : 'bg-hanoon-warning';
 
             return (
               <div key={key} className="flex items-center gap-2 text-xs">
-                <span className={`w-24 text-hanoon-text-dim truncate`}>{key}</span>
-                <div className="flex-1 h-3 glass-inset rounded overflow-hidden">
+                <span className="w-28 truncate text-hanoon-text-dim">{key}</span>
+                <div className="inner-surface h-2 flex-1 overflow-hidden rounded">
                   <div
-                    className={`h-full ${barColor} transition-all duration-300 ${isScanning ? 'animate-pulse-slow' : ''}`}
-                    style={{ width: `${Math.min(intensity * 100, 100)}%`, opacity: val > 0 ? 0.8 + intensity : 0.4 }}
+                    className={`h-full rounded transition-all duration-300 ${
+                      val > 0.05
+                        ? 'bg-hanoon-success'
+                        : val < -0.05
+                        ? 'bg-hanoon-error'
+                        : 'bg-hanoon-warning'
+                    } ${isScanning ? 'animate-pulse-slow' : ''}`}
+                    style={{
+                      width: `${Math.min(Math.abs(val) * 100, 100)}%`,
+                      opacity: val > 0 ? 0.75 + intensity : 0.4,
+                    }}
                   />
                 </div>
-                <span className="w-12 text-right text-hanoon-text-dim">{val.toFixed(3)}</span>
+                <span className="tnum w-14 text-right text-hanoon-text-dim">
+                  {val > 0 ? '+' : ''}
+                  {val.toFixed(3)}
+                </span>
               </div>
             );
           })}
         </div>
       ) : (
-        <div className="text-xs text-hanoon-text-dim">No signals active.</div>
-      )}
-
-      {/* Decision ticker */}
-      {data?.brain?.verdict && (
-        <div className="mt-3 text-xs font-mono glass-inset rounded-lg p-2">
-          <span className="text-hanoon-text-dim">VERDICT:</span>
-          <span className={
-            data.brain.verdict === 'BUY' ? 'text-hanoon-success' :
-            data.brain.verdict === 'SELL' ? 'text-hanoon-error' :
-            'text-hanoon-warning'
-          }> {data.brain.verdict}</span>
-          <span className="text-hanoon-text-dim"> score={data.brain.score?.toFixed(4)}</span>
-          <span className="text-hanoon-text-dim"> conf={data.brain.confidence?.toFixed(3)}</span>
-          <span className="text-hanoon-text-dim"> halim={data.halim?.advisory ?? '—'}</span>
-          <span className="text-hanoon-text-dim"> nash={data.nash?.opinion?.toFixed(4) ?? '—'}</span>
+        <div className="inner-surface px-4 py-6 text-center text-xs text-hanoon-text-dim">
+          No active signals.
         </div>
       )}
-    </div>
+
+      {/* Verdict readout */}
+      {data?.brain?.verdict && (
+        <div className="mt-4 rounded-lg border border-hanoon-border bg-hanoon-surface-2 px-3 py-2">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs">
+            <span
+              className={
+                data.brain.verdict === 'BUY'
+                  ? 'font-semibold text-hanoon-success'
+                  : data.brain.verdict === 'SELL'
+                  ? 'font-semibold text-hanoon-error'
+                  : 'font-semibold text-hanoon-warning'
+              }
+            >
+              {data.brain.verdict}
+            </span>
+            <span className="text-hanoon-text-dim">
+              score <span className="tnum text-hanoon-text">{data.brain.score?.toFixed(4)}</span>
+            </span>
+            <span className="text-hanoon-text-dim">
+              conf <span className="tnum text-hanoon-text">{(data.brain.confidence ?? 0).toFixed(3)}</span>
+            </span>
+            <span className="text-hanoon-text-dim">
+              halim <span className="tnum text-hanoon-halim">{data.halim?.advisory ?? '—'}</span>
+            </span>
+            <span className="text-hanoon-text-dim">
+              nash <span className="tnum text-hanoon-nash">{(data.nash?.opinion ?? 0).toFixed(4)}</span>
+            </span>
+          </div>
+        </div>
+      )}
+    </Panel>
   );
 }

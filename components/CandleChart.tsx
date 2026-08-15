@@ -74,7 +74,7 @@ export function CandleChart({ data, height = 150, width = 400, symbol }: CandleC
           const highY = scaleY(candle.high);
           const lowY = scaleY(candle.low);
           const isGreen = candle.close >= candle.open;
-          const color = isGreen ? '#00e676' : '#ff4466';
+          const color = isGreen ? '#34d399' : '#f87171';
           const bodyTop = Math.min(openY, closeY);
           const bodyHeight = Math.abs(openY - closeY) || 1;
 

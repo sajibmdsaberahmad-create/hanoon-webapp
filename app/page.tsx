@@ -3,21 +3,18 @@
 import { TelemetryProvider, useTelemetry } from '@/components/TelemetryProvider';
 import { Header } from '@/components/Header';
 import { Dashboard } from '@/components/Dashboard';
+import { LayerStatusBar } from '@/components/ui';
 
 /**
- * Main Dashboard Page — HANOON 3.0
+ * HANOON 3.0 — Command Dashboard
  *
- * Every signal, metric, and decision is visible on this page:
- * ─────────────────────────────────────────────────────────
- *  L0 Foundations  → Overview Panel (system, components, vault)
- *  L1 Senses       → Positions Panel (live exit health, TBT urgency)
- *  L2 Brains       → Brain Panel (JULI alpha, thinking, Nash, Halim)
- *  L3 Execution    → Trades Panel (fills, brackets)
- *  L3 Risk         → Portfolio stats (in Overview + Header)
- *  L4 Reflection   → Reflection Panel (buffer, review, retrain)
- *  L5 Monitoring   → System Panel (watchdog, sleep, telemetry hub)
- *  L6 Ops          → Control Panel (pause/resume/flatten commands)
- * ─────────────────────────────────────────────────────────
+ * L0  Foundations  → Overview
+ * L1  Senses       → Positions (live exit health, TBT urgency)
+ * L2  Brains       → Brain (JULI / thinking / Nash / Halim)
+ * L3  Execution    → Trades (fills, brackets)
+ * L4  Reflection   → Reflection (buffer, review, retrain)
+ * L5  Monitoring   → System (watchdog, sleep, telemetry hub)
+ * L6  Ops          → Command Center (pause / resume / flatten)
  */
 
 export default function HomePage() {
@@ -31,7 +28,8 @@ export default function HomePage() {
 }
 
 function AppContent() {
-  const { data, connectionState, latencyMs, stale, loading, error, refresh } = useTelemetry();
+  const { data, connectionState, latencyMs, stale, loading, error, refresh } =
+    useTelemetry();
 
   const summary = {
     equity: data?.portfolio?.equity ?? data?.equity ?? 0,
@@ -47,62 +45,20 @@ function AppContent() {
   return (
     <>
       <Header summary={summary} />
-      <main className="min-h-[calc(100vh-52px)]">
-        {/* Layer status bar — frosted glass strip */}
-        <div className="glass mx-4 mt-3 mb-1 px-4 py-2 rounded-xl flex flex-wrap items-center gap-4 text-xs font-mono">
-          <StatusIndicator
-            label="JULI"
-            state="active"
-            color="text-hanoon-juli"
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 pb-10">
+        <div className="pt-3">
+          <LayerStatusBar
+            data={data}
+            latencyMs={latencyMs}
+            stale={stale}
+            loading={loading}
+            error={error}
           />
-          <StatusIndicator
-            label="Nash"
-            state={data?.nash?.trained ? 'active' : 'inactive'}
-            color="text-hanoon-nash"
-          />
-          <StatusIndicator
-            label="Halim"
-            state={data?.halim?.active ? 'active' : 'inactive'}
-            color="text-hanoon-halim"
-          />
-          <StatusIndicator
-            label="IB Gateway"
-            state={data?.vault?.ib_gateway ? 'active' : 'inactive'}
-            color="text-hanoon-nash"
-          />
-          <StatusIndicator
-            label="Telemetry"
-            state={data?.telemetry_hub?.running ? 'active' : 'inactive'}
-            color="text-hanoon-warning"
-          />
-          <span className="text-hanoon-text-dim ml-auto">
-            Latency: <span className={stale ? 'text-hanoon-warning' : 'text-hanoon-success'}>{latencyMs}ms</span>
-            {' '}· Data: {loading ? 'loading' : stale ? 'STALE' : <span className="text-hanoon-success">live</span>}
-          </span>
         </div>
-        <Dashboard />
+        <div className="mt-4">
+          <Dashboard />
+        </div>
       </main>
     </>
-  );
-}
-
-function StatusIndicator({
-  label,
-  state,
-  color,
-}: {
-  label: string;
-  state: string;
-  color: string;
-}) {
-  return (
-    <div className="flex items-center gap-1">
-      <div
-        className={`w-2 h-2 rounded-full ${
-          state === 'active' ? 'bg-current animate-pulse-slow' : 'bg-hanoon-text-dim'
-        } ${color}`}
-      />
-      <span className={color}>{label}</span>
-    </div>
   );
 }

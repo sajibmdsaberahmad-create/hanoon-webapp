@@ -2,15 +2,10 @@
 
 import type { TelemetrySnapshot, PositionDetail } from '@/lib/types';
 import { formatPrice, formatPercent, pnlColor, healthColor, formatCurrency } from '@/lib/utils';
+import { Panel, EmptyState, Skeleton } from '@/components/ui';
 
 /**
  * Positions Panel — L1 Senses: live position health + exit triggers.
- *
- * Shows every active position with:
- *  - Real-time P&L (from IB)
- *  - Exit health re-score (from JULI cognitive.exit_re score)
- *  - Health verdict (STAY / THINK / EXIT / EXIT_HARD)
- *  - TBT rotation urgency (the priority ranking for tick-by-tick feed)
  */
 
 interface PositionsPanelProps {
@@ -24,74 +19,92 @@ export function PositionsPanel({ data }: PositionsPanelProps) {
 
   if (!data) {
     return (
-      <div className="glass rounded-2xl p-4">
-        <div className="text-xs font-mono text-hanoon-text-dim mb-2">▶ POSITIONS</div>
-        <div className="text-xs text-hanoon-text-dim">Loading positions…</div>
-      </div>
+      <Panel title="Positions">
+        <Skeleton className="h-32 w-full" />
+      </Panel>
     );
   }
 
   if (positions.length === 0) {
     return (
-      <div className="glass rounded-2xl p-4">
-        <div className="text-xs font-mono text-hanoon-text-dim mb-2">▶ POSITIONS</div>
-        <div className="text-xs text-hanoon-text-dim">No open positions. Portfolio is flat.</div>
-      </div>
+      <Panel title="Positions">
+        <EmptyState
+          title="Portfolio is flat"
+          description="No open positions right now. New signals will appear here as they fire."
+        />
+      </Panel>
     );
   }
 
   return (
-    <div className="glass rounded-2xl p-4">
-      <div className="text-xs font-mono text-hanoon-nash glow-nash mb-2">▶ POSITIONS ({positions.length})</div>
+    <Panel
+      title="Positions"
+      badge={
+        <span className="badge badge-info">
+          <span className="dot dot-info" />
+          {positions.length} open
+        </span>
+      }
+    >
       <div className="overflow-x-auto">
-        <table className="w-full text-xs font-mono">
+        <table className="data-table">
           <thead>
-            <tr className="border-b border-hanoon-border">
-              <th className="text-left py-1 text-hanoon-text-dim">Ticker</th>
-              <th className="text-right py-1 text-hanoon-text-dim">Dir</th>
-              <th className="text-right py-1 text-hanoon-text-dim">Size</th>
-              <th className="text-right py-1 text-hanoon-text-dim">Entry</th>
-              <th className="text-right py-1 text-hanoon-text-dim">Market</th>
-              <th className="text-right py-1 text-hanoon-text-dim">P&L</th>
-              <th className="text-right py-1 text-hanoon-text-dim">P&L%</th>
-              <th className="text-right py-1 text-hanoon-text-dim">Health</th>
-              <th className="text-right py-1 text-hanoon-text-dim">Verdict</th>
-              <th className="text-right py-1 text-hanoon-text-dim">TBT Urg</th>
-              <th className="text-right py-1 text-hanoon-text-dim">Stop</th>
-              <th className="text-right py-1 text-hanoon-text-dim">Target</th>
-              <th className="text-right py-1 text-hanoon-text-dim">RR</th>
+            <tr>
+              <th>Ticker</th>
+              <th>Side</th>
+              <th className="num">Size</th>
+              <th className="num">Entry</th>
+              <th className="num">Market</th>
+              <th className="num">P&L</th>
+              <th className="num">P&L%</th>
+              <th className="num">Health</th>
+              <th className="num">Verdict</th>
+              <th className="num">TBT</th>
+              <th className="num">Stop</th>
+              <th className="num">Target</th>
+              <th className="num">RR</th>
             </tr>
           </thead>
           <tbody>
             {positions.map((pos: PositionDetail) => {
-              const pnlPct = ((pos.current_price - pos.avg_cost) / pos.avg_cost) * pos.direction * 100;
+              const pnlPct =
+                ((pos.current_price - pos.avg_cost) / pos.avg_cost) *
+                pos.direction *
+                100;
               const urgency = urgencies[pos.ticker] ?? 0;
-              const bracket = brackets.find((b: any) => b.ticker === pos.ticker);
+
+              const healthTone =
+                pos.health_verdict === 'EXIT_HARD'
+                  ? 'text-hanoon-error'
+                  : pos.health_verdict === 'EXIT'
+                  ? 'text-hanoon-error'
+                  : pos.health_verdict === 'THINK'
+                  ? 'text-hanoon-warning'
+                  : 'text-hanoon-success';
 
               return (
-                <tr key={pos.ticker} className="border-b border-hanoon-border/30 hover:bg-hanoon-bg/30">
-                  <td className="py-1 text-hanoon-accent">{pos.ticker}</td>
-                  <td className="text-right">{pos.direction > 0 ? '🟢 LONG' : '🔴 SHORT'}</td>
-                  <td className="text-right">{pos.size.toFixed(2)}</td>
-                  <td className="text-right text-hanoon-text-dim">{formatPrice(pos.avg_cost)}</td>
-                  <td className="text-right">{formatPrice(pos.current_price)}</td>
-                  <td className={`text-right ${pnlColor(pos.pnl)}`}>{formatCurrency(pos.pnl)}</td>
-                  <td className={`text-right ${pnlColor(pnlPct)}`}>{formatPercent(pnlPct)}</td>
-                  <td className={`text-right ${healthColor(pos.health_score ?? 0)}`}>
+                <tr key={pos.ticker}>
+                  <td className="font-semibold text-hanoon-accent">{pos.ticker}</td>
+                  <td>
+                    <span className={`badge ${pos.direction > 0 ? 'badge-success' : 'badge-error'}`}>
+                      {pos.direction > 0 ? 'Long' : 'Short'}
+                    </span>
+                  </td>
+                  <td className="num">{pos.size.toFixed(2)}</td>
+                  <td className="num text-hanoon-text-dim">{formatPrice(pos.avg_cost)}</td>
+                  <td className="num">{formatPrice(pos.current_price)}</td>
+                  <td className={`num ${pnlColor(pos.pnl)}`}>{formatCurrency(pos.pnl)}</td>
+                  <td className={`num ${pnlColor(pnlPct)}`}>{formatPercent(pnlPct)}</td>
+                  <td className={`num ${healthColor(pos.health_score ?? 0)}`}>
                     {(pos.health_score ?? 0).toFixed(2)}
                   </td>
-                  <td className="text-right">
-                    <span className={
-                      pos.health_verdict === 'EXIT_HARD' ? 'text-hanoon-error' :
-                      pos.health_verdict === 'EXIT' ? 'text-hanoon-error' :
-                      pos.health_verdict === 'THINK' ? 'text-hanoon-warning' :
-                      'text-hanoon-success'
-                    }>{pos.health_verdict ?? 'STAY'}</span>
+                  <td className={`num font-semibold ${healthTone}`}>
+                    {pos.health_verdict ?? 'STAY'}
                   </td>
-                  <td className="text-right text-hanoon-text-dim">{urgency.toFixed(2)}</td>
-                  <td className="text-right text-hanoon-text-dim">{formatPrice(pos.stop_price)}</td>
-                  <td className="text-right text-hanoon-text-dim">{formatPrice(pos.target_price)}</td>
-                  <td className="text-right text-hanoon-text-dim">{pos.rr.toFixed(1)}</td>
+                  <td className="num text-hanoon-text-dim">{urgency.toFixed(2)}</td>
+                  <td className="num text-hanoon-error">{formatPrice(pos.stop_price)}</td>
+                  <td className="num text-hanoon-success">{formatPrice(pos.target_price)}</td>
+                  <td className="num text-hanoon-text-dim">{pos.rr.toFixed(1)}</td>
                 </tr>
               );
             })}
@@ -99,13 +112,34 @@ export function PositionsPanel({ data }: PositionsPanelProps) {
         </table>
       </div>
 
-      {/* Exit Health Legend */}
-      <div className="mt-2 flex gap-4 text-xs text-hanoon-text-dim">
-        <span>STAY = healthy, no exit trigger</span>
-        <span>THINK = consider exit</span>
-        <span>EXIT = trigger fired</span>
-        <span>EXIT_HARD = hard exit (stop hit or hard rule)</span>
+      {/* Exit health legend */}
+      <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 border-t border-hanoon-border-soft pt-3 text-[11px] text-hanoon-text-dim">
+        <span><span className="text-hanoon-success">STAY</span> — healthy, no exit trigger</span>
+        <span><span className="text-hanoon-warning">THINK</span> — consider exit</span>
+        <span><span className="text-hanoon-error">EXIT</span> — trigger fired</span>
+        <span><span className="text-hanoon-error">EXIT_HARD</span> — stop hit / hard rule</span>
       </div>
-    </div>
+
+      {/* Brackets summary */}
+      {brackets.length > 0 && (
+        <div className="mt-4">
+          <div className="panel-header -mx-1 px-1">
+            <div className="panel-title">Brackets</div>
+          </div>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {brackets.map((b: any) => (
+              <span key={b.ticker} className="badge">
+                <span className="font-semibold text-hanoon-accent">{b.ticker}</span>
+                <span className="tnum">
+                  stop {formatPrice(b.stop_price)} · target {formatPrice(b.target_price)}
+                </span>
+                <span className="tnum text-hanoon-text-faint">rr {b.rr_ratio?.toFixed(1)}</span>
+                {!b.active && <span className="text-hanoon-text-faint">(inactive)</span>}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </Panel>
   );
 }

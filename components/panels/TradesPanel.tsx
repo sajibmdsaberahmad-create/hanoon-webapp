@@ -1,16 +1,11 @@
 'use client';
 
-import type { TelemetrySnapshot, Trade, TradeRecord } from '@/lib/types';
+import type { TelemetrySnapshot, Trade } from '@/lib/types';
 import { formatPrice, formatCurrency } from '@/lib/utils';
+import { Panel, StatCard, EmptyState, Skeleton } from '@/components/ui';
 
 /**
- * Trades Panel — L4 Reflection: trade buffer, live trades, and
- * realized P&L from reflection buffer.
- *
- * Shows:
- *  - Recent live trades (from IB fills)
- *  - Buffer stats (win rate, total P&L, count)
- *  - Per-ticker trade history
+ * Trades Panel — L3 Execution: live trades, brackets, buffer stats.
  */
 
 interface TradesPanelProps {
@@ -19,111 +14,132 @@ interface TradesPanelProps {
 
 export function TradesPanel({ data }: TradesPanelProps) {
   if (!data) {
-  return (
-    <div className="glass rounded-2xl p-4">
-      <div className="text-xs font-mono text-hanoon-text-dim mb-2">▶ TRADES</div>
-      <div className="text-xs text-hanoon-text-dim">Loading trades…</div>
-    </div>
-  );
+    return (
+      <Panel title="Trades">
+        <Skeleton className="h-32 w-full" />
+      </Panel>
+    );
   }
 
   const trades = data.trades ?? [];
   const buffer = data.buffer;
   const brackets = data.brackets ?? [];
 
-  const bufferStats = [
-    { label: 'Total Trades', value: String(buffer?.trade_count ?? 0) },
-    { label: 'Win Rate', value: `${((buffer?.win_rate ?? 0) * 100).toFixed(1)}%` },
-    { label: 'Total P&L', value: formatCurrency(buffer?.total_pnl ?? 0) },
-    { label: 'Open Positions', value: String(buffer?.open_positions ?? 0) },
-  ];
-
   return (
-    <div className="glass rounded-2xl p-4">
-      <div className="text-xs font-mono text-hanoon-accent glow-accent mb-2">▶ TRADES — Execution Log</div>
-
+    <div className="space-y-4">
       {/* Buffer stats */}
-      <div className="grid grid-cols-4 gap-2 mb-3">
-        {bufferStats.map((s) => (
-          <div key={s.label} className="glass-inset rounded-xl p-2 text-center">
-            <div className="text-xs text-hanoon-text-dim">{s.label}</div>
-            <div className="text-sm font-medium text-hanoon-text">{s.value}</div>
-          </div>
-        ))}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <StatCard label="Total trades" value={String(buffer?.trade_count ?? 0)} />
+        <StatCard
+          label="Win rate"
+          value={`${((buffer?.win_rate ?? 0) * 100).toFixed(1)}%`}
+          tone="success"
+        />
+        <StatCard
+          label="Total P&L"
+          value={formatCurrency(buffer?.total_pnl ?? 0)}
+          tone={(buffer?.total_pnl ?? 0) >= 0 ? 'success' : 'error'}
+        />
+        <StatCard label="Open positions" value={String(buffer?.open_positions ?? 0)} tone="info" />
       </div>
 
-      {/* Recent live trades (last 20) */}
-      {trades.length > 0 && (
-        <div className="mb-3">
-          <div className="text-xs text-hanoon-text-dim mb-1">Recent Trades (last {Math.min(trades.length, 20)})</div>
-          <div className="overflow-x-auto max-h-48">
-            <table className="w-full text-xs font-mono">
+      {/* Recent live trades */}
+      <Panel
+        title="Recent trades"
+        badge={
+          <span className="badge badge-info">
+            <span className="dot dot-info" />
+            last {Math.min(trades.length, 20)}
+          </span>
+        }
+      >
+        {trades.length === 0 ? (
+          <EmptyState title="No trades yet" description="Fills from IB will show up here in real time." />
+        ) : (
+          <div className="max-h-72 overflow-x-auto">
+            <table className="data-table">
               <thead>
-                <tr className="border-b border-hanoon-border">
-                  <th className="text-left py-0.5 text-hanoon-text-dim">Time</th>
-                  <th className="text-left py-0.5 text-hanoon-text-dim">Ticker</th>
-                  <th className="text-right py-0.5 text-hanoon-text-dim">Side</th>
-                  <th className="text-right py-0.5 text-hanoon-text-dim">Qty</th>
-                  <th className="text-right py-0.5 text-hanoon-text-dim">Price</th>
-                  <th className="text-right py-0.5 text-hanoon-text-dim">PnL</th>
-                  <th className="text-right py-0.5 text-hanoon-text-dim">Comm</th>
+                <tr>
+                  <th>Time</th>
+                  <th>Ticker</th>
+                  <th className="num">Side</th>
+                  <th className="num">Qty</th>
+                  <th className="num">Price</th>
+                  <th className="num">P&L</th>
+                  <th className="num">Comm</th>
                 </tr>
               </thead>
               <tbody>
                 {trades.slice(0, 20).map((t: Trade, i) => (
-                  <tr key={`${t.exec_id ?? i}-${t.ts}`} className="border-b border-hanoon-border/30 hover:bg-hanoon-bg/30">
-                    <td className="py-0.5 text-hanoon-text-dim">{new Date(t.ts * 1000).toLocaleTimeString()}</td>
-                    <td className="py-0.5 text-hanoon-accent">{t.ticker}</td>
-                    <td className={`text-right ${t.side === 'BUY' ? 'text-hanoon-success' : 'text-hanoon-error'}`}>{t.side}</td>
-                    <td className="text-right">{t.qty.toFixed(2)}</td>
-                    <td className="text-right text-hanoon-text-dim">{formatPrice(t.price)}</td>
-                    <td className={`text-right ${t.realized_pnl >= 0 ? 'text-hanoon-success' : 'text-hanoon-error'}`}>
+                  <tr key={`${t.exec_id ?? i}-${t.ts}`}>
+                    <td className="text-hanoon-text-dim">
+                      {new Date(t.ts * 1000).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                      })}
+                    </td>
+                    <td className="font-semibold text-hanoon-accent">{t.ticker}</td>
+                    <td className={`num font-medium ${t.side === 'BUY' ? 'text-hanoon-success' : 'text-hanoon-error'}`}>
+                      {t.side}
+                    </td>
+                    <td className="num">{t.qty.toFixed(2)}</td>
+                    <td className="num text-hanoon-text-dim">{formatPrice(t.price)}</td>
+                    <td className={`num ${t.realized_pnl >= 0 ? 'text-hanoon-success' : 'text-hanoon-error'}`}>
                       {formatCurrency(t.realized_pnl)}
                     </td>
-                    <td className="text-right text-hanoon-text-dim">{t.commission.toFixed(2)}</td>
+                    <td className="num text-hanoon-text-dim">{t.commission.toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </div>
-      )}
+        )}
+      </Panel>
 
       {/* Active brackets */}
       {brackets.length > 0 && (
-        <div>
-          <div className="text-xs text-hanoon-text-dim mb-1">Active Brackets</div>
-          <div className="overflow-x-auto max-h-32">
-            <table className="w-full text-xs font-mono">
+        <Panel
+          title="Active brackets"
+          badge={
+            <span className="badge badge-warning">
+              <span className="dot dot-warning" />
+              {brackets.length}
+            </span>
+          }
+        >
+          <div className="overflow-x-auto">
+            <table className="data-table">
               <thead>
-                <tr className="border-b border-hanoon-border">
-                  <th className="text-left py-0.5 text-hanoon-text-dim">Ticker</th>
-                  <th className="text-right py-0.5 text-hanoon-text-dim">Entry</th>
-                  <th className="text-right py-0.5 text-hanoon-text-dim">Stop</th>
-                  <th className="text-right py-0.5 text-hanoon-text-dim">Target</th>
-                  <th className="text-right py-0.5 text-hanoon-text-dim">RR</th>
-                  <th className="text-right py-0.5 text-hanoon-text-dim">Active</th>
+                <tr>
+                  <th>Ticker</th>
+                  <th className="num">Entry</th>
+                  <th className="num">Stop</th>
+                  <th className="num">Target</th>
+                  <th className="num">RR</th>
+                  <th className="num">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {brackets.map((b: any) => (
-                  <tr key={b.ticker} className="border-b border-hanoon-border/20">
-                    <td className="py-0.5 text-hanoon-accent">{b.ticker}</td>
-                    <td className="text-right text-hanoon-text-dim">{formatPrice(b.entry_price)}</td>
-                    <td className="text-right text-hanoon-error">{formatPrice(b.stop_price)}</td>
-                    <td className="text-right text-hanoon-success">{formatPrice(b.target_price)}</td>
-                    <td className="text-right text-hanoon-text-dim">{b.rr_ratio.toFixed(1)}</td>
-                    <td className="text-right">{b.active ? '●' : '○'}</td>
+                  <tr key={b.ticker}>
+                    <td className="font-semibold text-hanoon-accent">{b.ticker}</td>
+                    <td className="num text-hanoon-text-dim">{formatPrice(b.entry_price)}</td>
+                    <td className="num text-hanoon-error">{formatPrice(b.stop_price)}</td>
+                    <td className="num text-hanoon-success">{formatPrice(b.target_price)}</td>
+                    <td className="num text-hanoon-text-dim">{b.rr_ratio?.toFixed(1)}</td>
+                    <td className="num">
+                      <span className={`badge ${b.active ? 'badge-success' : 'badge'}`}>
+                        <span className={`dot ${b.active ? 'dot-success' : ''}`} />
+                        {b.active ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </div>
-      )}
-
-      {trades.length === 0 && brackets.length === 0 && (
-        <div className="text-xs text-hanoon-text-dim">No trades or brackets recorded yet.</div>
+        </Panel>
       )}
     </div>
   );
