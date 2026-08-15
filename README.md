@@ -6,6 +6,14 @@ Real-time trading dashboard for the [HANOON 3.0](https://github.com/Zaad1704/han
 
 Built with **Next.js 15 + React 19 + TypeScript + Tailwind CSS** (App Router).
 
+### Connection Methods
+
+| Mode | How it works |
+|---|---|
+| **Local Dev** | The webapp connects directly to `http://localhost:8080` (the bot's TelemetryAPI). Both bot and webapp are started via `start.command` in the rebuild directory. |
+| **Vercel Prod** | The webapp proxies through `/api/bridge/*` → the bot's public URL. For a local bot, `start.command` launches an **ngrok tunnel** on port 8080 and writes the public URL to `runtime/ngrok_url.txt` and `.env.local`. Set `HANOON_BOT_URL` env var on Vercel to this URL. |
+| **VPS Deployment** | If the bot runs on a VPS, just set `HANOON_BOT_URL=http://<vps-ip>:8080` in Vercel's project settings.
+
 ### Layers Mirrored
 
 | HANOON Layer | Web Component | Endpoint Source |
@@ -26,19 +34,19 @@ The webapp proxies all requests to the HANOON bot's `TelemetryAPI` (port 8080) t
 ## Development
 
 ```bash
-# 1. Start EVERYTHING (HALIM serve + bot + webapp)
+# 1. Start EVERYTHING (HALIM serve + bot + ngrok tunnel + webapp)
 cd /Users/mdsabersajib/Downloads/hanoon_rebuild
 bash start.command
 
 # 2. Check health
 bash health.command
 
-# 3. Stop EVERYTHING (bot + HALIM + webapp)
+# 3. Stop EVERYTHING
 bash stop.command
 
-# OR run webapp standalone for development
+# OR run webapp standalone for development/testing
 cd /Users/mdsabersajib/Downloads/hanoon_webapp
-npm run dev
+bash start.command   # webapp only (expects bot already running on :8080)
 ```
 
 ## Deployment
@@ -52,9 +60,9 @@ Set the following Environment Variables (Project Settings → Environment Variab
 
 | Name | Value | Scope |
 |---|---|---|
-| `NEXT_PUBLIC_BRIDGE_URL` | `http://<your-bot-host>:8080` | Production |
+| `NEXT_PUBLIC_BRIDGE_URL` | `https://<your-ngrok-url>` (auto-set by start.command) | Production |
 | `NEXT_PUBLIC_POLL_INTERVAL_MS` | `5000` | Production |
-| `HANOON_BOT_URL` | `http://<your-bot-host>:8080` | Production |
+| `HANOON_BOT_URL` | `https://<your-ngrok-url>` (set by start.command → ngrok tunnel) | Production |
 
 ## HALIM Integration
 
@@ -65,8 +73,8 @@ Set the following Environment Variables (Project Settings → Environment Variab
 
 ## Start/Stop Scripts
 
-- **`start.command`** — Starts HALIM serve → HANOON bot → webapp dashboard
-- **`stop.command`** — Stops webapp → bot (graceful shutdown) → HALIM serve
+- **`start.command`** — Starts HALIM serve → HANOON bot → ngrok tunnel → webapp dashboard
+- **`stop.command`** — Stops webapp → ngrok tunnel → bot (graceful shutdown) → HALIM serve
 - **`health.command`** — Checks all 3 components are alive + responding
 
 All PIDs are written to `runtime/pids/` in the bot root directory.
