@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "env": {
+    "NEXT_PUBLIC_BRIDGE_URL": "http://localhost:8080",
+    "NEXT_PUBLIC_POLL_INTERVAL_MS": "5000"
+  },
+  "routes": [
+    {
+      "src": "/api/bridge/(.*)",
+      "dest": "/api/bridge/$1"
+    }
+  ]
+}

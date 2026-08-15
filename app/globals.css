@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a12;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a3a;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3a3a4a;
+}
+
+/* Blinking cursor for terminal-style elements */
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* Grid background pattern */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(42, 42, 58, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(42, 42, 58, 0.3) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
