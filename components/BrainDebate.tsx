@@ -122,7 +122,7 @@ export function BrainDebate({ data }: BrainDebateProps) {
             return (
               <div
                 key={i}
-                className={`flex gap-2 items-start text-xs p-1.5 rounded border-l-2
+                className={`debate-in flex gap-2 items-start text-xs p-1.5 rounded border-l-2
                   ${row.speaker === 'verdict'
                     ? 'border-emerald-500 bg-emerald-500/5'
                     : row.speaker === 'halim'
@@ -133,6 +133,7 @@ export function BrainDebate({ data }: BrainDebateProps) {
                     ? 'border-cyan-500 bg-cyan-500/5'
                     : 'border-amber-500 bg-amber-500/5'
                   }`}
+                  style={{ animationDelay: `${i * 90}ms` }}
               >
                 <div className="flex-shrink-0 mt-0.5">
                   <div className={`w-2 h-2 rounded-full ${s.dot} animate-pulse-slow`} />

@@ -12,7 +12,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en" className="dark">
       <body className="text-hanoon-text min-h-screen font-mono">
         <Background />
-        <div className="relative z-10 min-h-screen">
+        <div className="relative z-10 min-h-screen overflow-x-hidden">
           {children}
         </div>
       </body>

@@ -382,7 +382,10 @@ export type BotCommand =
   | "force_review"
   | "sleep"
   | "wake"
-  | "status";
+  | "status"
+  | "defensive"
+  | "set_long_only"
+  | "set_sessions";
 
 export interface CommandResult {
   ok: boolean;

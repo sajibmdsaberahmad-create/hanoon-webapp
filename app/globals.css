@@ -47,73 +47,30 @@
   background: #05050c;
 }
 
+/* Old-design aurora orb: absolute, blurred, floating on aurora-float */
 .aurora-orb {
   position: absolute;
-  border-radius: 50%;
+  border-radius: 9999px;
   filter: blur(90px);
   mix-blend-mode: screen;
+  animation: aurora-float 16s ease-in-out infinite;
+  pointer-events: none;
   will-change: transform, opacity;
 }
 
-.aurora-orb-1 {
-  width: 60vmax;
-  height: 60vmax;
-  left: -15vmax;
-  top: -20vmax;
-  background: radial-gradient(circle at 40% 40%,
-    rgba(0, 212, 170, 0.55) 0%, rgba(41, 182, 246, 0.25) 45%, transparent 70%);
-  animation: orb-drift-1 26s ease-in-out infinite alternate;
-}
-
-.aurora-orb-2 {
-  width: 55vmax;
-  height: 55vmax;
-  right: -18vmax;
-  top: 10vmax;
-  background: radial-gradient(circle at 60% 40%,
-    rgba(170, 0, 255, 0.4) 0%, rgba(41, 182, 246, 0.2) 45%, transparent 70%);
-  animation: orb-drift-2 32s ease-in-out infinite alternate;
-}
-
-.aurora-orb-3 {
-  width: 50vmax;
-  height: 50vmax;
-  left: 25vmax;
-  bottom: -25vmax;
-  background: radial-gradient(circle at 50% 50%,
-    rgba(0, 230, 118, 0.3) 0%, rgba(255, 170, 0, 0.15) 50%, transparent 75%);
-  animation: orb-drift-3 38s ease-in-out infinite alternate;
-}
-
-@keyframes orb-drift-1 {
-  0%   { transform: translate(0, 0) scale(1); }
-  50%  { transform: translate(18vmax, 12vmax) scale(1.15); }
-  100% { transform: translate(-10vmax, 20vmax) scale(0.9); }
-}
-
-@keyframes orb-drift-2 {
-  0%   { transform: translate(0, 0) scale(1); }
-  50%  { transform: translate(-16vmax, -10vmax) scale(1.1); }
-  100% { transform: translate(12vmax, -18vmax) scale(1.2); }
-}
-
-@keyframes orb-drift-3 {
-  0%   { transform: translate(0, 0) scale(1) rotate(0deg); }
-  50%  { transform: translate(-14vmax, -12vmax) scale(1.25); }
-  100% { transform: translate(10vmax, -6vmax) scale(0.95); }
-}
-
-/* Blurred overlay above the aurora, below the content */
-.aurora-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  background:
-    radial-gradient(ellipse at 20% 0%, rgba(5, 5, 12, 0.5), transparent 55%),
-    radial-gradient(ellipse at 80% 100%, rgba(5, 5, 12, 0.55), transparent 60%),
-    rgba(5, 5, 12, 0.35);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+@keyframes aurora-float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.45;
+  }
+  33% {
+    transform: translate(40px, -50px) scale(1.2);
+    opacity: 0.7;
+  }
+  66% {
+    transform: translate(-30px, 30px) scale(0.9);
+    opacity: 0.35;
+  }
 }
 
 /* ── Glassmorphism panels ─────────────────────────────────────────────
@@ -184,4 +141,127 @@
 @keyframes tab-fade {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Old design-system language (ported from the classic dashboard) ────── */
+
+/* Gradient text for hero numbers / section titles */
+.gradient-text {
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  background-image: linear-gradient(90deg, #34d399, #22d3ee, #818cf8);
+}
+
+/* Shimmer sweep (hero values, analyzing gauges) */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-sweep 3.5s linear infinite;
+}
+@keyframes shimmer-sweep {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Card hover lift — the classic frosted card that breathes */
+.glass-hover {
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.glass-hover:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 12px 44px rgba(0, 0, 0, 0.32),
+    0 0 32px rgba(34, 211, 238, 0.18);
+}
+
+/* Entrance animations */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in-up {
+  animation: fade-in-up 0.4s ease both;
+}
+
+@keyframes panel-enter {
+  from { opacity: 0; transform: translateY(12px) scale(0.995); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.panel-enter {
+  animation: panel-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes debate-in {
+  from { opacity: 0; transform: translateX(-10px) scale(0.98); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+.debate-in {
+  animation: debate-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Glow pulse for live indicators */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.35); }
+  50% { box-shadow: 0 0 14px 4px rgba(52, 211, 153, 0.12); }
+}
+.glow-green {
+  animation: glow-pulse 2.4s ease-in-out infinite;
+}
+
+/* Border pulse for dirty/apply states */
+@keyframes border-pulse {
+  0%, 100% { border-color: rgba(52, 211, 153, 0.5); }
+  50% { border-color: rgba(34, 211, 238, 0.9); }
+}
+.border-pulse {
+  animation: border-pulse 1.4s ease-in-out infinite;
+}
+
+/* Spectrum bars breathe (JULI quantum spectrum) */
+@keyframes spectrum-breathe {
+  0%, 100% { transform: scaleY(0.92); opacity: 0.85; }
+  50% { transform: scaleY(1.06); opacity: 1; }
+}
+.spectrum-bar {
+  transform-origin: bottom;
+  animation: spectrum-breathe 2.6s ease-in-out infinite;
+}
+
+/* Shimmering thinking text */
+@keyframes shimmer-text {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+.shimmer-text {
+  animation: shimmer-text 1.8s ease-in-out infinite;
+}
+
+/* Hidden scrollbar for the tab strip */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .debate-in, .spectrum-bar, .shimmer-text, .aurora-orb {
+    animation: none;
+    opacity: 1;
+  }
 }
