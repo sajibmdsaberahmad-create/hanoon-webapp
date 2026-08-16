@@ -439,6 +439,8 @@ export type BotCommand =
   | "flatten_all"
   | "flatten"
   | "close_position"
+  | "close"
+  | "global_cancel"
   | "force_retrain"
   | "force_review"
   | "sleep"
@@ -446,7 +448,9 @@ export type BotCommand =
   | "status"
   | "defensive"
   | "set_long_only"
-  | "set_sessions";
+  | "set_sessions"
+  | "distill"
+  | "refresh_calendar";
 
 export interface CommandResult {
   ok: boolean;
