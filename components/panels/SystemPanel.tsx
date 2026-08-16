@@ -97,12 +97,16 @@ export function SystemPanel({ data }: SystemPanelProps) {
           <StatCard
             label="State"
             value={sleep.sleep_state || '—'}
-            tone={sleep.is_active ? 'warning' : 'success'}
+            tone={sleep.sleep_state === 'awake' ? 'success' : 'warning'}
           />
           <StatCard
             label="Active"
-            value={sleep.is_active ? 'Sleeping' : 'Awake'}
-            tone={sleep.is_active ? 'warning' : 'success'}
+            value={sleep.is_active ? 'Awake' : 'Sleeping'}
+            tone={sleep.is_active ? 'success' : 'warning'}
+          />
+          <StatCard
+            label="Sessions"
+            value={(sleep.enabled_sessions || ['rth']).join(', ')}
           />
           <StatCard
             label="Last check"

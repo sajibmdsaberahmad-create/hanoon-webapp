@@ -68,10 +68,12 @@ export interface IbIntel {
 }
 
 export interface SleepState {
-  sleep_state: string;      // awake / pre / post / closed / weekend / risk_event / stress
+  sleep_state: string;      // awake / market_closed / user_window / failure / stress
   sleep_reason: string;
   is_active: boolean;
   last_check: number;
+  session?: string;              // pre / rth / post / overnight
+  enabled_sessions?: string[];   // e.g. ['rth'] — webapp set_sessions
 }
 
 // ── L2: Brains ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
