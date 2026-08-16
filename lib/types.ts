@@ -57,6 +57,24 @@ export interface PositionDetail {
   health_score: number;        // [0, 1] from JULI exit re-score
   health_verdict: string;      // STAY / THINK / EXIT / EXIT_HARD
   tbt_urgency: number;         // TBT subscription urgency (0.1–3.0)
+  // What JULI thinks about this position RIGHT NOW (live exit re-score):
+  juli_thinking?: {
+    ts: number;
+    score: number;             // health [0,1]
+    juli_score: number;        // raw JULI composite
+    confidence: number;
+    win_prob: number;
+    ev_enter: number;
+    verdict: string;           // STAY / THINK / EXIT / EXIT_HARD
+    prediction: string;        // HOLD / WATCH / EXIT
+    direction_hint: number;
+    entry_price: number;
+    current_price: number;
+    stop_price: number;
+    target_price: number;
+    triggers: Record<string, number>;
+    indicators: Record<string, number>;
+  };
 }
 
 export interface IbIntel {
@@ -154,6 +172,30 @@ export interface Trade {
   realized_pnl: number;
   ts: number;
   exec_id: string;
+  exit_reason?: string;
+  hold_min?: number;
+  // JULI's entry decision (what the brain thought at entry)
+  juli?: {
+    score: number;
+    direction: number;
+    confidence: number;
+    verdict: string;
+    trace: string;
+  };
+  // Halim's parallel call at entry
+  halim_entry?: {
+    direction: number;
+    confidence: number;
+    reason: string;
+  };
+  // Halim's POSTMORTEM — own decision on full data + lesson + debate
+  halim_postmortem?: {
+    decision: { direction: number; confidence: number; reason: string } | null;
+    lesson: string;
+    debate: string;
+  };
+  gold_saved?: boolean;       // SFT gold written for Halim retraining
+  goal?: string;              // JULI's goal for the trade
 }
 
 export interface BracketState {
@@ -367,6 +409,23 @@ export interface TelemetrySnapshot {
   api: ApiTelemetry;
   vault: VaultState;
   paused: boolean;
+
+  // What JULI thinks about every scanned ticker (score/ev/conf/prediction)
+  scan_views?: Record<string, {
+    ts: number;
+    score: number;
+    direction: number;
+    direction_label: string;
+    confidence: number;
+    ev: number;
+    ev_enter: boolean;
+    halim_approved: boolean;
+    halim_pull: number;
+    prediction: string;
+    indicators: Record<string, number>;
+  }>;
+  // What JULI thinks about every open position (full exit re-score)
+  exit_views?: Record<string, any>;
 
   // Legacy compatibility
   [key: string]: any;

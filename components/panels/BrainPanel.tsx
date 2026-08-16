@@ -176,6 +176,97 @@ export function BrainPanel({ data }: BrainPanelProps) {
         </Panel>
       )}
 
+      {/* What JULI thinks about every scanned ticker — the live scan brain */}
+      {data.scan_views && Object.keys(data.scan_views).length > 0 && (
+        <Panel
+          title="What JULI is thinking — scanned tickers"
+          badge={
+            <span className="badge badge-info">
+              <span className="dot dot-info" />
+              {Object.keys(data.scan_views).length} live
+            </span>
+          }
+        >
+          <div className="max-h-80 overflow-x-auto">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Ticker</th>
+                  <th className="num">Score</th>
+                  <th className="num">Direction</th>
+                  <th className="num">Conf</th>
+                  <th className="num">EV</th>
+                  <th className="num">Halim</th>
+                  <th className="num">Prediction</th>
+                  <th>Key signals</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(data.scan_views)
+                  .sort((a, b) => (b[1]?.score ?? 0) - (a[1]?.score ?? 0))
+                  .slice(0, 40)
+                  .map(([tk, v]: [string, any]) => (
+                    <tr key={tk}>
+                      <td className="font-semibold text-hanoon-accent">{tk}</td>
+                      <td className={`num ${v.score >= 0.55 ? 'text-hanoon-success' : v.score >= 0.45 ? 'text-hanoon-warning' : 'text-hanoon-text-dim'}`}>
+                        {v.score.toFixed(3)}
+                      </td>
+                      <td className={`num ${v.direction === 1 ? 'text-hanoon-success' : v.direction === -1 ? 'text-hanoon-error' : 'text-hanoon-text-dim'}`}>
+                        {v.direction_label ?? 'HOLD'}
+                      </td>
+                      <td className="num text-hanoon-text-dim">{((v.confidence ?? 0) * 100).toFixed(0)}%</td>
+                      <td className={`num ${v.ev > 0 ? 'text-hanoon-success' : v.ev < 0 ? 'text-hanoon-error' : 'text-hanoon-text-dim'}`}>
+                        {v.ev.toFixed(4)}
+                      </td>
+                      <td className={`num ${v.halim_approved ? 'text-hanoon-success' : 'text-hanoon-error'}`}>
+                        {v.halim_approved ? '✓' : '✗'}
+                      </td>
+                      <td className={`num font-semibold ${v.prediction === 'ENTER' ? 'text-hanoon-success' : 'text-hanoon-text-dim'}`}>
+                        {v.prediction ?? 'WATCH'}
+                      </td>
+                      <td className="text-[11px] text-hanoon-text-dim">
+                        {v.indicators
+                          ? Object.entries(v.indicators)
+                              .filter(([, x]) => typeof x === 'number' && Math.abs(x as number) > 0.15)
+                              .slice(0, 3)
+                              .map(([k, x]) => `${k}=${(x as number).toFixed(2)}`)
+                              .join(' · ')
+                          : '—'}
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </Panel>
+      )}
+
+      {/* Distillation + Halim lessons + goal gap */}
+      {(data.distill || data.lessons) && (
+        <Panel title="Learning — distillation & Halim lessons">
+          {data.distill && (
+            <div className="mb-3 text-xs text-hanoon-text-dim">
+              <span className="tnum">Distill: {data.distill.digest_ts ? 'packaged' : 'pending'}</span>
+              <span className="mx-2 text-hanoon-text-faint">·</span>
+              <span className="tnum">Gold rows: {data.distill.gold_count ?? (data.distill.count ?? 0)}</span>
+              <span className="mx-2 text-hanoon-text-faint">·</span>
+              <span className="tnum">Goal gap: {data.lessons?.goal_gap != null ? `$${Number(data.lessons.goal_gap).toLocaleString()}` : '—'}</span>
+            </div>
+          )}
+          {data.lessons?.recent && data.lessons.recent.length > 0 && (
+            <div className="space-y-2">
+              {data.lessons.recent.slice(0, 5).map((l: any, i: number) => (
+                <div key={i} className="rounded-md bg-white/5 p-2 text-xs text-hanoon-text-dim">
+                  <span className="font-semibold text-hanoon-accent">{l.ticker}</span>
+                  <span className="mx-2 text-hanoon-text-faint">·</span>
+                  <span className="tnum">{l.lesson?.slice?.(0, 120) ?? '—'}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </Panel>
+      )}
+
       {weights?.weights && (
         <Panel title="Weight state">
           <div className="mb-2 text-xs text-hanoon-text-dim">

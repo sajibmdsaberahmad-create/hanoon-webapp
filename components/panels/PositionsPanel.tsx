@@ -1,11 +1,15 @@
 'use client';
 
+import { useState, Fragment } from 'react';
 import type { TelemetrySnapshot, PositionDetail } from '@/lib/types';
 import { formatPrice, formatPercent, pnlColor, healthColor, formatCurrency } from '@/lib/utils';
 import { Panel, EmptyState, Skeleton } from '@/components/ui';
 
 /**
- * Positions Panel — L1 Senses: live position health + exit triggers.
+ * Positions Panel — L1 Senses: live position health + exit triggers,
+ * with what JULI is thinking about each open position (prediction,
+ * probability, EV, verdict, indicators) — the pure reflection of the
+ * brain's live per-position reasoning.
  */
 
 interface PositionsPanelProps {
@@ -16,6 +20,7 @@ export function PositionsPanel({ data }: PositionsPanelProps) {
   const positions = data?.positions ?? [];
   const urgencies = data?.tbt_rotation?.urgency ?? data?.urgencies ?? {};
   const brackets = data?.brackets ?? [];
+  const [expanded, setExpanded] = useState<string | null>(null);
 
   if (!data) {
     return (
@@ -83,7 +88,12 @@ export function PositionsPanel({ data }: PositionsPanelProps) {
                   : 'text-hanoon-success';
 
               return (
-                <tr key={pos.ticker}>
+                <Fragment key={pos.ticker}>
+                <tr
+                  onClick={() => setExpanded(expanded === pos.ticker ? null : pos.ticker)}
+                  className="cursor-pointer"
+                  title="Click for what JULI is thinking about this position"
+                >
                   <td className="font-semibold text-hanoon-accent">{pos.ticker}</td>
                   <td>
                     <span className={`badge ${pos.direction > 0 ? 'badge-success' : 'badge-error'}`}>
@@ -106,6 +116,14 @@ export function PositionsPanel({ data }: PositionsPanelProps) {
                   <td className="num text-hanoon-success">{formatPrice(pos.target_price)}</td>
                   <td className="num text-hanoon-text-dim">{pos.rr.toFixed(1)}</td>
                 </tr>
+                {expanded === pos.ticker && (
+                  <tr className="bg-black/20">
+                    <td colSpan={13} className="p-3">
+                      <JuliPositionThinking pos={pos} pnlPct={pnlPct} />
+                    </td>
+                  </tr>
+                )}
+                </Fragment>
               );
             })}
           </tbody>
@@ -141,5 +159,59 @@ export function PositionsPanel({ data }: PositionsPanelProps) {
         </div>
       )}
     </Panel>
+  );
+}
+
+/**
+ * What JULI is thinking about a single open position — the live exit
+ * re-score: prediction, probability, EV, verdict, triggers and the
+ * indicator snapshot. Pure reflection of the brain's per-position
+ * reasoning; if JULI hasn't scored it yet, the raw entry meta shows.
+ */
+function JuliPositionThinking({ pos, pnlPct }: { pos: PositionDetail; pnlPct: number }) {
+  const t = pos.juli_thinking;
+  const inds = t?.indicators ?? {};
+  const triggers = t?.triggers ?? {};
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-2 text-[11px]">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-1 sm:grid-cols-4">
+          <JuliCell label="Prediction" value={t?.prediction ?? '—'} tone={t?.prediction === 'EXIT' ? 'text-hanoon-error' : t?.prediction === 'WATCH' ? 'text-hanoon-warning' : 'text-hanoon-success'} />
+          <JuliCell label="Health" value={t ? t.score.toFixed(2) : (pos.health_score ?? 0).toFixed(2)} />
+          <JuliCell label="Confidence" value={t ? `${(t.confidence * 100).toFixed(0)}%` : '—'} />
+          <JuliCell label="Win prob" value={t ? `${(t.win_prob * 100).toFixed(0)}%` : '—'} />
+          <JuliCell label="EV" value={t ? formatCurrency(t.ev_enter) : '—'} tone={t && t.ev_enter > 0 ? 'text-hanoon-success' : t && t.ev_enter < 0 ? 'text-hanoon-error' : ''} />
+          <JuliCell label="JULI score" value={t ? t.juli_score.toFixed(3) : '—'} />
+          <JuliCell label="Verdict" value={t?.verdict ?? pos.health_verdict ?? 'STAY'} tone={t?.verdict === 'EXIT_HARD' ? 'text-hanoon-error' : t?.verdict === 'EXIT' ? 'text-hanoon-error' : t?.verdict === 'THINK' ? 'text-hanoon-warning' : 'text-hanoon-success'} />
+          <JuliCell label="P&L %" value={formatPercent(pnlPct)} tone={pnlColor(pnlPct)} />
+        </div>
+      </div>
+      {Object.keys(triggers).length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(triggers).map(([k, v]) => (
+            <span key={k} className="badge badge-warning">{k} {typeof v === 'number' ? v.toFixed(3) : ''}</span>
+          ))}
+        </div>
+      )}
+      {Object.keys(inds).length > 0 && (
+        <div className="flex flex-wrap gap-x-4 gap-y-1 border-t border-hanoon-border-soft pt-2 text-[11px] text-hanoon-text-dim">
+          {Object.entries(inds).map(([k, v]) => (
+            <span key={k} className="tnum"><span className="text-hanoon-text-faint">{k}</span> {typeof v === 'number' ? v.toFixed(3) : v}</span>
+          ))}
+        </div>
+      )}
+      {!t && (
+        <p className="text-[11px] text-hanoon-text-faint">JULI hasn't re-scored this position yet — showing live market mark. It re-scores every monitor pulse.</p>
+      )}
+    </div>
+  );
+}
+
+function JuliCell({ label, value, tone = '' }: { label: string; value: string; tone?: string }) {
+  return (
+    <div>
+      <div className="text-[10px] uppercase tracking-wide text-hanoon-text-faint">{label}</div>
+      <div className={`tnum font-semibold ${tone || 'text-hanoon-text'}`}>{value}</div>
+    </div>
   );
 }
