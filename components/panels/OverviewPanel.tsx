@@ -189,8 +189,8 @@ export function OverviewPanel({ data }: OverviewPanelProps) {
             IB gateway
           </span>
           <span className="flex items-center gap-1.5">
-            <span className={`dot ${vault.ngrok ? 'dot-warning' : 'dot-error'}`} />
-            Ngrok tunnel
+            <span className={`dot ${(vault.tunnel ?? vault.ngrok) ? 'dot-warning' : 'dot-error'}`} />
+            Tunnel
           </span>
           <span className="tnum">Cycles: {runner.cycle_count ?? 0}</span>
         </div>

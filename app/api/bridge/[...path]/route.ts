@@ -19,9 +19,7 @@ export async function GET(request: NextRequest) {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        // ngrok free tier serves an interstitial HTML page to requests
-        // without this header — the Vercel server must pass it.
-        'ngrok-skip-browser-warning': '1',
+        'User-Agent': 'hanoon-webapp-proxy/1.0',
         ...(BRIDGE_TOKEN ? { 'X-HANOON-Token': BRIDGE_TOKEN } : {}),
       },
       next: { revalidate: 0 },
@@ -50,7 +48,7 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'ngrok-skip-browser-warning': '1',
+        'User-Agent': 'hanoon-webapp-proxy/1.0',
         ...(BRIDGE_TOKEN ? { 'X-HANOON-Token': BRIDGE_TOKEN } : {}),
       },
       body,

@@ -150,6 +150,10 @@ export interface JuliLearning {
   win_streak: number;
   dynamic_threshold: number;
   goal_gap: number;
+  // Live API contract (bridge_api.py `learning` block): fraction win_rate
+  patterns?: number;
+  win_rate?: number;
+  total_adjustments?: number;
 }
 
 export interface WeightState {
@@ -343,6 +347,7 @@ export interface VaultState {
   halim_serve: boolean;
   ib_gateway: boolean;
   ngrok: boolean;
+  tunnel: boolean;
 }
 
 // ── Combined Telemetry Snapshot ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

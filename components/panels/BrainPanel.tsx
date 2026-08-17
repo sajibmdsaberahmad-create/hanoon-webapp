@@ -161,17 +161,17 @@ export function BrainPanel({ data }: BrainPanelProps) {
       {learning && (
         <Panel title="JULI learning">
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <StatCard label="Patterns" value={String(learning.patterns_learned ?? 0)} />
+            <StatCard label="Patterns" value={String(learning.patterns ?? learning.patterns_learned ?? 0)} />
             <StatCard
               label="Recent win rate"
-              value={formatPercent(learning.recent_win_rate)}
+              value={formatPercent((learning.win_rate ?? learning.recent_win_rate ?? 0) * 100)}
               tone="success"
             />
             <StatCard
               label="Weight adjustments"
-              value={String(learning.weight_adjustments ?? 0)}
+              value={String(learning.total_adjustments ?? learning.weight_adjustments ?? 0)}
             />
-            <StatCard label="Decision count" value={String(learning.decision_count ?? 0)} />
+            <StatCard label="Decision count" value={String(learning.patterns ?? learning.decision_count ?? 0)} />
           </div>
         </Panel>
       )}
