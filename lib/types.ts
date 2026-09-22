@@ -386,8 +386,8 @@ export interface TelemetrySnapshot {
     healthy: boolean; // false => degraded gatekeeper → fail-open (admit)
     obi: number;
     vpin: number;
-    tf5_align: number;
-    tf15_vol: number;
+    price_entropy: number;
+    vol_entropy: number;
     drift_zscore: number;
     feature_zero_streak: { obi: number; vpin: number };
     last_size_scale: number;
