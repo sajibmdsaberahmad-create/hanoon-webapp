@@ -42,6 +42,12 @@ export function BrainPanel({ data }: BrainPanelProps) {
     .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))
     .slice(0, 10);
 
+  const gate = data.meta_label_dnn;
+  const gateTone =
+    gate && typeof gate.healthy === 'boolean'
+      ? gate.healthy ? 'success' : 'warning'
+      : 'default';
+
   const verdictTone =
     brain?.verdict === 'BUY'
       ? 'success'
@@ -76,6 +82,15 @@ export function BrainPanel({ data }: BrainPanelProps) {
           />
           <StatCard label="Verdict" value={brain?.verdict ?? '—'} tone={verdictTone} />
           <StatCard label="EV" value={`$${(brain?.ev ?? 0).toFixed(4)}`} tone="info" />
+          <StatCard
+            label="DNN gate"
+            value={
+              typeof gate?.p_win === 'number'
+                ? `${(gate.p_win * 100).toFixed(1)}%`
+                : '—'
+            }
+            tone={gateTone}
+          />
         </div>
 
         {/* Alpha signals */}

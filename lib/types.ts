@@ -380,6 +380,15 @@ export interface TelemetrySnapshot {
     thinking_trace: Record<string, any>;
     threshold: number;
   };
+  meta_label_dnn: {
+    p_win: number;
+    verdict_raw: string;
+    healthy: boolean; // false => degraded gatekeeper → fail-open (admit)
+    obi: number;
+    vpin: number;
+    tf5_align: number;
+    tf15_vol: number;
+  };
   nash: NashOpinion;
   halim: {
     trust: number;
