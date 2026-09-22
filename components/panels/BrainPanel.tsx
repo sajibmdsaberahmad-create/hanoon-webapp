@@ -48,6 +48,11 @@ export function BrainPanel({ data }: BrainPanelProps) {
       ? gate.healthy ? 'success' : 'warning'
       : 'default';
 
+  const absZ = Math.abs(gate?.drift_zscore ?? 0);
+  const driftTone = absZ > 2.5 ? 'error' : absZ > 1.5 ? 'warning' : 'success';
+  const streak = gate?.feature_zero_streak;
+  const streakFrozen = (streak?.obi ?? 0) > 5 || (streak?.vpin ?? 0) > 5;
+
   const verdictTone =
     brain?.verdict === 'BUY'
       ? 'success'
@@ -73,7 +78,7 @@ export function BrainPanel({ data }: BrainPanelProps) {
     <div className="space-y-4">
       <Panel title="JULI — decision engine">
         {/* Composite score */}
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
           <StatCard label="Composite score" value={formatScore(brain?.score)} tone="accent" />
           <StatCard
             label="Confidence"
@@ -91,6 +96,32 @@ export function BrainPanel({ data }: BrainPanelProps) {
             }
             tone={gateTone}
           />
+          <StatCard
+            label="Drift Z"
+            value={typeof gate?.drift_zscore === 'number' ? gate.drift_zscore.toFixed(2) : '—'}
+            tone={driftTone}
+            hint={absZ > 2.5 ? 'REGIME SHIFT' : absZ > 1.5 ? 'elevated' : 'baseline'}
+          />
+          <StatCard
+            label="Size scale"
+            value={typeof gate?.last_size_scale === 'number' ? `${gate.last_size_scale.toFixed(2)}x` : '—'}
+            tone="accent"
+            hint="Kelly multiplier"
+          />
+          <div className="metric">
+            <div className="metric-label">Feed health</div>
+            <div className="mt-1">
+              <span className={`badge ${streakFrozen ? 'badge-error' : 'badge-success'}`}>
+                <span className={`dot ${streakFrozen ? 'dot-error dot-live' : 'dot-success dot-live'}`} />
+                {streakFrozen ? 'FROZEN' : 'HEALTHY'}
+              </span>
+            </div>
+            {(streak?.obi ?? 0) > 0 && (
+              <div className="mt-1 text-[11px] text-hanoon-text-faint">
+                OBI: {streak?.obi} / VPIN: {streak?.vpin}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Alpha signals */}

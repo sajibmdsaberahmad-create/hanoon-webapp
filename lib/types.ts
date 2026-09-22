@@ -388,6 +388,9 @@ export interface TelemetrySnapshot {
     vpin: number;
     tf5_align: number;
     tf15_vol: number;
+    drift_zscore: number;
+    feature_zero_streak: { obi: number; vpin: number };
+    last_size_scale: number;
   };
   nash: NashOpinion;
   halim: {
