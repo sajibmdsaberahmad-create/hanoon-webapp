@@ -10,6 +10,7 @@ import {
   Cog6ToothIcon,
   DocumentTextIcon,
   ArrowPathIcon,
+  BoltIcon,
 } from '@heroicons/react/24/outline';
 import { useTelemetry } from '@/components/TelemetryProvider';
 import { ReconnectionBanner } from '@/components/ReconnectingProvider';
@@ -23,6 +24,7 @@ import { ReflectionPanel } from '@/components/panels/ReflectionPanel';
 import { SystemPanel } from '@/components/panels/SystemPanel';
 import { LogsPanel } from '@/components/panels/LogsPanel';
 import { SignalSpectrum } from '@/components/SignalSpectrum';
+import { EnginePanel } from '@/components/panels/EnginePanel';
 
 /**
  * Dashboard — tabbed command shell.
@@ -38,6 +40,7 @@ type TabKey =
   | 'overview'
   | 'brain'
   | 'positions'
+  | 'engine'
   | 'trades'
   | 'control'
   | 'system'
@@ -47,6 +50,7 @@ const TABS: Array<{ id: TabKey; label: string; icon: typeof Squares2X2Icon }> = 
   { id: 'overview', label: 'Overview', icon: Squares2X2Icon },
   { id: 'brain', label: 'Brain', icon: CpuChipIcon },
   { id: 'positions', label: 'Positions', icon: ChartBarIcon },
+  { id: 'engine', label: 'Engine', icon: BoltIcon },
   { id: 'trades', label: 'Trades', icon: ArrowsRightLeftIcon },
   { id: 'control', label: 'Control', icon: CommandLineIcon },
   { id: 'system', label: 'System', icon: Cog6ToothIcon },
@@ -217,6 +221,7 @@ export function Dashboard() {
             </div>
           )}
           {tab === 'positions' && <PositionsPanel data={data} />}
+          {tab === 'engine' && <EnginePanel />}
           {tab === 'trades' && <TradesPanel data={data} />}
           {tab === 'control' && <CommandCenter />}
           {tab === 'system' && <SystemPanel data={data} />}

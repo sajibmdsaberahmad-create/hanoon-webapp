@@ -475,3 +475,42 @@ export interface CommandResult {
   action: BotCommand;
   result?: Record<string, any>;
 }
+
+// ── Map B live engine status (HUNTER telemetry /api/engine) ───────────────
+// Projected verbatim from logs/engine_status.json. A missing/stale file
+// reads as unknown (present:false), never as flat — see telemetry/state.py.
+
+export interface EnginePosition {
+  symbol: string;
+  qty: number | null;
+  entry: number;
+  stop: number;
+  target: number;
+  hw: number;
+  entry_time: number;
+}
+
+export interface EngineStatus {
+  ts: number;
+  pid: number;
+  universe: string[] | null;
+  universe_source: string | null;
+  positions: EnginePosition[] | null;
+  staged: string[];
+  entries_today: Record<string, number>;
+  entries_all: number;
+  daily_pnl: number;
+  vetoes: Record<string, number>;
+  stages: number;
+  last_action: {
+    symbol: string;
+    action: string;
+    reason: string;
+    ts: number;
+  } | null;
+  readable: boolean;
+  present?: boolean;
+  stale?: boolean;
+  file_age_s?: number | null;
+  served_at?: string;
+}
