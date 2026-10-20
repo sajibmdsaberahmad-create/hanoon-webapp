@@ -480,14 +480,22 @@ export interface CommandResult {
 // Projected verbatim from logs/engine_status.json. A missing/stale file
 // reads as unknown (present:false), never as flat — see telemetry/state.py.
 
+export interface EngineSplit {
+  on: boolean;
+  runner_qty?: number;
+  catcher_qty?: number;
+  tp_active?: boolean;
+}
+
 export interface EnginePosition {
   symbol: string;
   qty: number | null;
-  entry: number;
-  stop: number;
-  target: number;
-  hw: number;
-  entry_time: number;
+  entry: number | null;
+  stop: number | null;
+  target: number | null;
+  hw: number | null;
+  split?: EngineSplit;
+  entry_time: number | null;
 }
 
 export interface EngineStatus {

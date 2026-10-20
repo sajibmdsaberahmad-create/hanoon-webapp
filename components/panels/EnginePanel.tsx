@@ -16,6 +16,10 @@ import { Panel, StatCard, EmptyState, Skeleton } from '@/components/ui';
 
 const POLL_MS = 5000;
 
+function px(v: number | null | undefined): string {
+  return v == null ? '—' : v.toFixed(4);
+}
+
 function timeAgo(ts: number | null | undefined): string {
   if (!ts) return '—';
   const s = Math.max(0, Math.round(Date.now() / 1000 - ts));
@@ -171,12 +175,34 @@ export function EnginePanel() {
               <tbody>
                 {positions.map((p) => (
                   <tr key={p.symbol}>
-                    <td className="font-semibold">{p.symbol}</td>
-                    <td className="num">{p.qty ?? '—'}</td>
-                    <td className="num">{p.entry.toFixed(4)}</td>
-                    <td className="num">{p.stop.toFixed(4)}</td>
-                    <td className="num">{p.target.toFixed(4)}</td>
-                    <td className="num">{p.hw.toFixed(4)}</td>
+                    <td className="font-semibold">
+                      {p.symbol}
+                      {p.split?.on && (
+                        <span className="badge badge-info ml-1.5">
+                          <span className="dot dot-info" />
+                          split
+                        </span>
+                      )}
+                    </td>
+                    <td className="num">
+                      {p.qty ?? '—'}
+                      {p.split?.on && (
+                        <span className="block text-[10px] text-hanoon-text-faint">
+                          r{p.split.runner_qty ?? '—'} / c{p.split.catcher_qty ?? '—'}
+                        </span>
+                      )}
+                    </td>
+                    <td className="num">{px(p.entry)}</td>
+                    <td className="num">{px(p.stop)}</td>
+                    <td className="num">
+                      {px(p.target)}
+                      {p.split?.on && (
+                        <span className="block text-[10px] text-hanoon-text-faint">
+                          {p.split.tp_active ? 'catcher TP' : 'catcher filled'}
+                        </span>
+                      )}
+                    </td>
+                    <td className="num">{px(p.hw)}</td>
                   </tr>
                 ))}
               </tbody>
